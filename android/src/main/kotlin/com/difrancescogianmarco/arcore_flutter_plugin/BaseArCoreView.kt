@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.os.Bundle
+
 import android.os.Handler
 import android.util.Log
 import android.view.View
@@ -20,7 +21,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
 
-open class BaseArCoreView(val activity: Activity, context: Context, messenger: BinaryMessenger, id: Int, protected val debug: Boolean) : PlatformView, MethodChannel.MethodCallHandler {
+open class BaseArCoreView(val activity: Activity, val context: Context, messenger: BinaryMessenger, id: Int, protected val debug: Boolean) : PlatformView, MethodChannel.MethodCallHandler {
 
     lateinit var activityLifecycleCallbacks: Application.ActivityLifecycleCallbacks
     protected val methodChannel: MethodChannel = MethodChannel(messenger, "arcore_flutter_plugin_$id")
@@ -81,7 +82,7 @@ open class BaseArCoreView(val activity: Activity, context: Context, messenger: B
         }
 
         activity.application
-                .registerActivityLifecycleCallbacks(this.activityLifecycleCallbacks)
+            .registerActivityLifecycleCallbacks(this.activityLifecycleCallbacks)
     }
 
     override fun getView(): View {
@@ -137,8 +138,8 @@ open class BaseArCoreView(val activity: Activity, context: Context, messenger: B
 //            return
 //        }
     }
-    
-    
+
+
     fun attachNodeToParent(node: Node?, parentNodeName: String?) {
         if (parentNodeName != null) {
             debugLog(parentNodeName)
@@ -186,8 +187,8 @@ open class BaseArCoreView(val activity: Activity, context: Context, messenger: B
     }
 
     fun removeNode(node: Node) {
-            arSceneView?.scene?.removeChild(node)
-            debugLog("removed ${node.name}")
+        arSceneView?.scene?.removeChild(node)
+        debugLog("removed ${node.name}")
     }
 
     fun onPause() {

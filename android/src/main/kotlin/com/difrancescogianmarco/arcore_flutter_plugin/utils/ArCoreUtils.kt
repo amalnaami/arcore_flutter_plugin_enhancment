@@ -1,6 +1,16 @@
 package com.difrancescogianmarco.arcore_flutter_plugin.utils
 
+
+import androidx.constraintlayout.helper.widget.MotionEffect.TAG
 import android.Manifest
+import androidx.activity.result.ActivityResult
+
+import androidx.activity.result.ActivityResultCallback
+
+import androidx.activity.result.ActivityResultLauncher
+
+import androidx.activity.result.contract.ActivityResultContracts
+
 import android.app.Activity
 import android.app.ActivityManager
 import android.content.Context
@@ -9,6 +19,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
+import android.os.Environment
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
@@ -95,18 +106,98 @@ class ArCoreUtils {
         /** Check to see we have the necessary permissions for this app, and ask for them if we don't.  */
         fun requestCameraPermission(activity: Activity, requestCode: Int) {
             ActivityCompat.requestPermissions(
-                    activity, arrayOf(Manifest.permission.CAMERA), requestCode)
+                activity, arrayOf(Manifest.permission.CAMERA), requestCode)
         }
+
+        fun requestWritePermission(activity: Activity){
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                // Android is 11 or above
+                try {
+                    val intent = Intent()
+                    intent.action = Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
+                    intent.data = Uri.fromParts("package", activity.packageName, null)
+                    activity.startActivity(intent)
+
+
+
+                    //storageActivityResultLauncher.launch(intent)
+                } catch (e: java.lang.Exception) {
+
+                    val intent = Intent()
+                    intent.action = Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
+                    intent.data = Uri.fromParts("package", activity.packageName, null)
+
+                    activity.startActivity(intent)
+                    //storageActivityResultLauncher.launch(intent)
+                }
+            } else {
+                // Android is below 11.
+
+                ActivityCompat.requestPermissions(
+                    activity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 100)
+            }
+        }
+
+        fun requestAudioPermission(activity: Activity){
+            ActivityCompat.requestPermissions(
+                activity, arrayOf(Manifest.permission.RECORD_AUDIO), 200)
+        }
+
+/*        var storageActivityResultLauncher: ActivityResultLauncher<Intent> =
+            registerForActivityResult(
+                StartActivityForResult(),
+                object : ActivityResultCallback<ActivityResult?>() {
+                    fun onActivityResult(result: ActivityResult?) {
+                        Log.d(
+                            com.difrancescogianmarco.arcore_flutter_plugin.VideoRecorder.TAG,
+                            "onActivityResult: "
+                        )
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            // Android is 11 or above
+                            if (Environment.isExternalStorageManager()) {
+                                //Manage External Storage Permission is granted
+                                Log.d(
+                                    com.difrancescogianmarco.arcore_flutter_plugin.VideoRecorder.TAG,
+                                    "onActivityResult: Manage External Storage Permission is granted"
+                                )
+                            } else {
+                                //Manage External Storage Permission is denied
+                                Log.d(
+                                    com.difrancescogianmarco.arcore_flutter_plugin.VideoRecorder.TAG,
+                                    "onActivityResult: Manage External Storage Permission is denied "
+                                )
+                                //Toast.makeText(this, "Manage External Storage permission is denied", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                }
+            )*/
 
         /** Check to see we have the necessary permissions for this app.  */
         fun hasCameraPermission(activity: Activity): Boolean {
             return ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
         }
 
+        fun hasWritePermission(activity: Activity) : Boolean{
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                // Android is 11 or above
+                return Environment.isExternalStorageManager()
+            } else {
+
+                return ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                // Android is below 11
+            }
+        }
+
+        fun hasAudioPermission(activity: Activity): Boolean{
+            return ContextCompat.checkSelfPermission(activity, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        }
+
         /** Check to see if we need to show the rationale for this permission.  */
         fun shouldShowRequestPermissionRationale(activity: Activity): Boolean {
             return ActivityCompat.shouldShowRequestPermissionRationale(
-                    activity, Manifest.permission.CAMERA)
+                activity, Manifest.permission.CAMERA)
         }
 
         /** Launch Application Setting to grant permission.  */
@@ -122,7 +213,7 @@ class ArCoreUtils {
          * will be appended to the toast. The error will also be written to the Log
          */
         fun displayError(
-                context: Context, errorMsg: String, @Nullable problem: Throwable?) {
+            context: Context, errorMsg: String, @Nullable problem: Throwable?) {
             val tag = context.javaClass.simpleName
             val toastText: String
             if (problem != null && problem.message != null) {
@@ -137,15 +228,15 @@ class ArCoreUtils {
             }
 
             Handler(Looper.getMainLooper())
-                    .post {
-                        val toast = Toast.makeText(context, toastText, Toast.LENGTH_LONG)
-                        toast.setGravity(Gravity.CENTER, 0, 0)
-                        toast.show()
-                    }
+                .post {
+                    val toast = Toast.makeText(context, toastText, Toast.LENGTH_LONG)
+                    toast.setGravity(Gravity.CENTER, 0, 0)
+                    toast.show()
+                }
         }
 
         fun handleSessionException(
-                activity: Activity, sessionException: UnavailableException) {
+            activity: Activity, sessionException: UnavailableException) {
 
             val message: String
             if (sessionException is UnavailableArcoreNotInstalledException) {
@@ -181,12 +272,12 @@ class ArCoreUtils {
                 return false
             }
             val openGlVersionString = (activity.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager)
-                    .deviceConfigurationInfo
-                    .glEsVersion
+                .deviceConfigurationInfo
+                .glEsVersion
             if (java.lang.Double.parseDouble(openGlVersionString) < MIN_OPENGL_VERSION) {
                 Log.e(TAG, "Sceneform requires OpenGL ES 3.0 later")
                 Toast.makeText(activity, "Sceneform requires OpenGL ES 3.0 or later", Toast.LENGTH_LONG)
-                        .show()
+                    .show()
                 activity.finish()
                 return false
             }

@@ -1,17 +1,22 @@
 package com.difrancescogianmarco.arcore_flutter_plugin
 
+
+
 import android.app.Activity
+
+import android.content.ContentValues
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.media.CamcorderProfile
 import android.net.Uri
-import android.util.Log
+import android.widget.Toast
+import android.provider.MediaStore
 import com.difrancescogianmarco.arcore_flutter_plugin.utils.ArCoreUtils
 import com.google.ar.core.AugmentedFace
 import com.google.ar.core.Config
 import com.google.ar.core.TrackingState
 import com.google.ar.core.exceptions.CameraNotAvailableException
 import com.google.ar.core.exceptions.UnavailableException
-import com.google.ar.sceneform.ArSceneView
 import com.google.ar.sceneform.Scene
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.rendering.Renderable
@@ -20,7 +25,7 @@ import com.google.ar.sceneform.ux.AugmentedFaceNode
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import kotlin.collections.HashMap
+
 
 class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessenger, id: Int, debug: Boolean) : BaseArCoreView(activity, context, messenger, id, debug) {
 
@@ -29,14 +34,20 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
     private var faceMeshTexture: Texture? = null
     private val faceNodeMap = HashMap<AugmentedFace, AugmentedFaceNode>()
     private var faceSceneUpdateListener: Scene.OnUpdateListener
+    private var videoRecorder=
+        VideoRecording()
 
     init {
+        val orientation: Int = context.getResources().getConfiguration().orientation
+        videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_2160P, orientation)
+        videoRecorder!!.setSceneView(arSceneView)
+
         faceSceneUpdateListener = Scene.OnUpdateListener { frameTime ->
             run {
-                //                if (faceRegionsRenderable == null || faceMeshTexture == null) {
+/*                //                if (faceRegionsRenderable == null || faceMeshTexture == null) {
                 if (faceMeshTexture == null) {
                     return@OnUpdateListener
-                }
+                }*/
                 val faceList = arSceneView?.session?.getAllTrackables(AugmentedFace::class.java)
 
                 faceList?.let {
@@ -81,9 +92,17 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
                 }
                 "loadMesh" -> {
                     val map = call.arguments as HashMap<*, *>
-                    val textureBytes = map["textureBytes"] as ByteArray
+                    val textureBytes = map["textureBytes"] as? ByteArray
                     val skin3DModelFilename = map["skin3DModelFilename"] as? String
                     loadMesh(textureBytes, skin3DModelFilename)
+                }
+                "record" -> {
+                    record()
+                }
+                "getVideoPath" -> {
+                    //val path = videoRecorder!!.getVideoPath().getAbsolutePath()
+                    result.success(videoRecorder!!.getVideoPath().getAbsolutePath())
+                    //methodChannel.invokeMethod("getVideoPath", path.toString())
                 }
                 "dispose" -> {
                     debugLog( " updateMaterials")
@@ -104,24 +123,54 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
             // Load the face regions renderable.
             // This is a skinned model that renders 3D objects mapped to the regions of the augmented face.
             ModelRenderable.builder()
-                    .setSource(activity, Uri.parse(skin3DModelFilename))
-                    .build()
-                    .thenAccept { modelRenderable ->
-                        faceRegionsRenderable = modelRenderable
-                        modelRenderable.isShadowCaster = false
-                        modelRenderable.isShadowReceiver = false
-                    }
+                .setSource(activity, Uri.parse(skin3DModelFilename))
+                .build()
+                .thenAccept { modelRenderable ->
+                    faceRegionsRenderable = modelRenderable
+                    modelRenderable.isShadowCaster = false
+                    modelRenderable.isShadowReceiver = false
+                }
         }
 
         // Load the face mesh texture.
+        //if(textureBytes != null) {
         Texture.builder()
-                //.setSource(activity, Uri.parse("fox_face_mesh_texture.png"))
-                .setSource(BitmapFactory.decodeByteArray(textureBytes, 0, textureBytes!!.size))
-                .build()
-                .thenAccept { texture -> faceMeshTexture = texture }
+            //.setSource(activity, Uri.parse("fox_face_mesh_texture.png"))
+            .setSource(BitmapFactory.decodeByteArray(textureBytes, 0, textureBytes!!.size))
+            .build()
+            .thenAccept { texture -> faceMeshTexture = texture }
+        //}
     }
 
-    private fun arScenViewInit(call: MethodCall, result: MethodChannel.Result) {
+
+
+    fun record(){
+        val recording = videoRecorder!!.onToggleRecord()
+        if(recording) {
+            Toast.makeText(activity, "Started Recording", Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(activity, "Recording Stopped", Toast.LENGTH_SHORT).show()
+            val videoPath = videoRecorder!!.getVideoPath().getAbsolutePath()
+            //path = videoPath
+            Toast.makeText(activity, "Video saved: $videoPath", Toast.LENGTH_SHORT).show()
+            //Log.d(VideoRecorder.TAG, "Video saved: $videoPath")
+            val values = ContentValues()
+            values.put(MediaStore.Video.Media.TITLE, "Sceneform Video")
+            values.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+            values.put(MediaStore.Video.Media.DATA, videoPath)
+            context.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
+        }
+
+
+    }
+/*    fun getVideoPath(): String?{
+        return path;
+    }*/
+
+
+
+
+    fun arScenViewInit(call: MethodCall, result: MethodChannel.Result) {
         val enableAugmentedFaces: Boolean? = call.argument("enableAugmentedFaces")
         if (enableAugmentedFaces != null && enableAugmentedFaces) {
             // This is important to make sure that the camera stream renders first so that
@@ -143,6 +192,12 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
             // request camera permission if not already requested
             if (!ArCoreUtils.hasCameraPermission(activity)) {
                 ArCoreUtils.requestCameraPermission(activity, RC_PERMISSIONS)
+            }
+            if (!ArCoreUtils.hasWritePermission(activity)) {
+                ArCoreUtils.requestWritePermission(activity)
+            }
+            if (!ArCoreUtils.hasAudioPermission(activity)) {
+                ArCoreUtils.requestAudioPermission(activity)
             }
 
             // If the session wasn't created yet, don't resume rendering.

@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.difrancescogianmarco.arcore_flutter_plugin">
+    package="com.difrancescogianmarco.arcore_flutter_plugin">
 
     <uses-permission android:name="android.permission.CAMERA" />
 
@@ -15,6 +15,9 @@
         <!-- Indicates that app requires ARCore ("AR Required"). Causes Google
              Play Store to download and install ARCore when the app is installed.
         -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
         <meta-data android:name="com.google.ar.core" android:value="optional" />
     </application>
 

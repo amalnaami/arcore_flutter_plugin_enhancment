@@ -313,7 +313,7 @@ class ArCoreAugmentedImagesView(activity: Activity, context: Context, messenger:
                         augmentedImageDatabase.addImage(key, augmentedImageBitmap)
                     } catch (ex: Exception) {
                         debugLog("Image with the title $key cannot be added to the database. " +
-                        "The exception was thrown: " + ex?.toString())
+                                "The exception was thrown: " + ex?.toString())
                     }
                 }
                 if (augmentedImageDatabase?.getNumImages() == 0) {
@@ -356,8 +356,8 @@ class ArCoreAugmentedImagesView(activity: Activity, context: Context, messenger:
 
     private fun loadAugmentedImageBitmap(bitmapdata: ByteArray): Bitmap? {
         debugLog( "loadAugmentedImageBitmap")
-       try {
-           return  BitmapFactory.decodeByteArray(bitmapdata, 0, bitmapdata.size)
+        try {
+            return  BitmapFactory.decodeByteArray(bitmapdata, 0, bitmapdata.size)
         } catch (e: Exception) {
             Log.e(TAG, "IO exception loading augmented image bitmap.", e)
             return  null
