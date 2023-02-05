@@ -14,9 +14,9 @@ class ArCoreFaceView extends StatefulWidget {
 
   const ArCoreFaceView(
       {Key? key,
-      this.onArCoreViewCreated,
-      this.enableAugmentedFaces = false,
-      this.debug = false})
+        this.onArCoreViewCreated,
+        this.enableAugmentedFaces = false,
+        this.debug = false})
       : super(key: key);
 
   @override
@@ -27,7 +27,7 @@ class _ArCoreFaceViewState extends State<ArCoreFaceView>
     with WidgetsBindingObserver {
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance!.addObserver(this);
     super.initState();
   }
 
@@ -45,7 +45,7 @@ class _ArCoreFaceViewState extends State<ArCoreFaceView>
     }
     return Center(
       child:
-          Text('$defaultTargetPlatform is not supported by the ar_view plugin'),
+      Text('$defaultTargetPlatform is not supported by the ar_view plugin'),
     );
   }
 
@@ -60,7 +60,7 @@ class _ArCoreFaceViewState extends State<ArCoreFaceView>
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance!.removeObserver(this);
     super.dispose();
   }
 }

@@ -20,13 +20,13 @@ class ArCoreView extends StatefulWidget {
 
   const ArCoreView(
       {Key? key,
-      required this.onArCoreViewCreated,
+        required this.onArCoreViewCreated,
 //    @required this.onArCoreUnsupported,
-      this.enableTapRecognizer = false,
-      this.enablePlaneRenderer = true,
-      this.enableUpdateListener = false,
-      this.type = ArCoreViewType.STANDARDVIEW,
-      this.debug = false})
+        this.enableTapRecognizer = false,
+        this.enablePlaneRenderer = true,
+        this.enableUpdateListener = false,
+        this.type = ArCoreViewType.STANDARDVIEW,
+        this.debug = false})
       : super(key: key);
 
   @override
@@ -36,7 +36,7 @@ class ArCoreView extends StatefulWidget {
 class _ArCoreViewState extends State<ArCoreView> with WidgetsBindingObserver {
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance!.addObserver(this);
     super.initState();
   }
 
@@ -54,7 +54,7 @@ class _ArCoreViewState extends State<ArCoreView> with WidgetsBindingObserver {
     }
     return Center(
       child:
-          Text('$defaultTargetPlatform is not supported by the ar_view plugin'),
+      Text('$defaultTargetPlatform is not supported by the ar_view plugin'),
     );
   }
 
@@ -70,7 +70,7 @@ class _ArCoreViewState extends State<ArCoreView> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance!.removeObserver(this);
     super.dispose();
   }
 }

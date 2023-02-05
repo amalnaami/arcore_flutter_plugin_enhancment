@@ -13,34 +13,88 @@ class AugmentedFacesScreen extends StatefulWidget {
 
 class _AugmentedFacesScreenState extends State<AugmentedFacesScreen> {
   ArCoreFaceController? arCoreFaceController;
+  int index = 0;
+
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Augmented Faces'),
-        ),
-        body: ArCoreFaceView(
-          onArCoreViewCreated: _onArCoreViewCreated,
-          enableAugmentedFaces: true,
-        ),
-      ),
-    );
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text('Augmented Faces'),
+          ),
+          body:Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                ArCoreFaceView(
+                  onArCoreViewCreated: _onArCoreViewCreated,
+                  enableAugmentedFaces: true,
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    print("before button pressed  $index");
+
+                    setState(() {
+                      //index++;
+                      loadMesh(index);
+                      print("after button pressed  $index");
+                    });
+                  }
+                  ,
+                  style: ElevatedButton.styleFrom(
+                      elevation: 12.0,
+                      textStyle: const TextStyle(color: Colors.white)),
+                  child: const Text("Change Filter"),
+                ),
+              ] ),
+        ));
   }
+
+
+/*  void _onArCoreViewCreated(ArCoreFaceController controller) {
+    arCoreFaceController = controller;
+
+    loadMesh(index);
+
+    if
+
+
+
+    //arCoreFaceController?.deleteObject();
+
+
+
+  }*/
 
   void _onArCoreViewCreated(ArCoreFaceController controller) {
-    arCoreFaceController = controller;
-    loadMesh();
+    setState(() {  arCoreFaceController = controller;
+    //loadMesh(index);
+    print("index before: $index");
+
+    Future.delayed(const Duration(seconds: 3)).then((value) {
+      ++index;
+      print("index after: $index");
+      loadMesh(index);
+
+    });
+
+      //arCoreFaceController?.deleteObject();
+
+    });
   }
 
-  loadMesh() async {
+
+
+
+
+
+  loadMesh(int x) async {
     final ByteData textureBytes =
-        await rootBundle.load('assets/fox_face_mesh_texture.png');
+    await rootBundle.load('assets/fox_face_mesh_texture.png');
 
     arCoreFaceController?.loadMesh(
         textureBytes: textureBytes.buffer.asUint8List(),
-        skin3DModelFilename: 'fox_face.sfb');
+        index: x);
   }
 
   @override

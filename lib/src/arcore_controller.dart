@@ -34,10 +34,10 @@ class ArCoreController {
 
   ArCoreController(
       {required this.id,
-      this.enableTapRecognizer,
-      this.enablePlaneRenderer,
-      this.enableUpdateListener,
-      this.debug = false
+        this.enableTapRecognizer,
+        this.enablePlaneRenderer,
+        this.enableUpdateListener,
+        this.debug = false
 //    @required this.onUnsupported,
       }) {
     _channel = MethodChannel('arcore_flutter_plugin_$id');
@@ -106,7 +106,7 @@ class ArCoreController {
         }
         break;
       case 'getTrackingState':
-        // TRACKING, PAUSED or STOPPED
+      // TRACKING, PAUSED or STOPPED
         trackingState = call.arguments;
         if (debug ?? true) {
           print('Latest tracking state received is: $trackingState');
@@ -117,7 +117,7 @@ class ArCoreController {
           print('flutter onTrackingImage');
         }
         final arCoreAugmentedImage =
-            ArCoreAugmentedImage.fromMap(call.arguments);
+        ArCoreAugmentedImage.fromMap(call.arguments);
         onTrackingImage!(arCoreAugmentedImage);
         break;
       case 'togglePlaneRenderer':

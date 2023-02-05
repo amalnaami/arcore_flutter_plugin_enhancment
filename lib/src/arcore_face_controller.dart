@@ -44,12 +44,19 @@ class ArCoreFaceController {
   }
 
   Future<void> loadMesh(
-      {required Uint8List textureBytes, required String skin3DModelFilename}) {
+      {required Uint8List textureBytes, required int index}) {
     return _channel.invokeMethod('loadMesh', {
       'textureBytes': textureBytes,
-      'skin3DModelFilename': skin3DModelFilename
+      'index': index
     });
   }
+
+  Future<void> deleteObject(){
+    return _channel.invokeMethod<void>('deleteObject');
+
+  }
+
+
 
   void dispose() {
     _channel.invokeMethod<void>('dispose');
