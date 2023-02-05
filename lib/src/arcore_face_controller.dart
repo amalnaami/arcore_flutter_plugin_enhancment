@@ -16,6 +16,7 @@ class ArCoreFaceController {
   final bool debug;
   late MethodChannel _channel;
   late StringResultHandler onError;
+  //String path = '';
 
   init() async {
     try {
@@ -35,6 +36,9 @@ class ArCoreFaceController {
       case 'onError':
         onError(call.arguments);
         break;
+/*      case 'getVideoPath':
+        path = call.arguments as String;
+        break;*/
       default:
         if (debug) {
           print('Unknown method ${call.method}');
@@ -43,17 +47,32 @@ class ArCoreFaceController {
     return Future.value();
   }
 
-  Future<void> loadMesh(
+/*  Future<void> loadMesh(
       {required Uint8List textureBytes, required int index}) {
     return _channel.invokeMethod('loadMesh', {
       'textureBytes': textureBytes,
       'index': index
     });
+  }*/
+
+  Future<void> loadMesh(
+      {required Uint8List? textureBytes, required String skin3DModelFilename}) {
+    return _channel.invokeMethod('loadMesh', {
+      'textureBytes': textureBytes,
+      'skin3DModelFilename': skin3DModelFilename
+    });
   }
 
-  Future<void> deleteObject(){
-    return _channel.invokeMethod<void>('deleteObject');
 
+
+  Future<void> record(){
+    return _channel.invokeMethod('record');
+  }
+
+  Future<String> getVideoPath() async {
+    final String path = await _channel.invokeMethod('getVideoPath');
+    //print("path is: $path");
+    return path;
   }
 
 
