@@ -19,7 +19,7 @@ import java.io.IOException;
  * encode the video. The quality settings can be set explicitly or simply use the CamcorderProfile
  * class to select a predefined set of parameters.
  */
-public class VideoRecording {
+public class VideoRecorder {
     private static final String TAG = "VideoRecorder";
     private static final int DEFAULT_BITRATE = 10000000;
     private static final int DEFAULT_FRAMERATE = 30;
@@ -48,7 +48,7 @@ public class VideoRecording {
             CamcorderProfile.QUALITY_480P
     };
 
-    public VideoRecording() {
+    public VideoRecorder() {
         recordingVideoFlag = false;
     }
 

@@ -27,15 +27,5 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-
-        <meta-data
-            android:name="io.flutter.embedding.android.SplashScreenDrawable"
-            android:resource="@drawable/launch_background" />
-
-        <!-- Theme to apply as soon as Flutter begins rendering frames -->
-        <meta-data
-            android:name="io.flutter.embedding.android.NormalTheme"
-            android:resource="@style/NormalTheme"
-        />
     </application>
 </manifest>

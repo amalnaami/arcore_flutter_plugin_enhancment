@@ -35,7 +35,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
     private val faceNodeMap = HashMap<AugmentedFace, AugmentedFaceNode>()
     private var faceSceneUpdateListener: Scene.OnUpdateListener
     private var videoRecorder=
-        VideoRecording()
+        VideoRecorder()
 
     init {
         val orientation: Int = context.getResources().getConfiguration().orientation
