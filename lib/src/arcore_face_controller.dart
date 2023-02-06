@@ -56,7 +56,7 @@ class ArCoreFaceController {
   }*/
 
   Future<void> loadMesh(
-      {required Uint8List? textureBytes, required String skin3DModelFilename}) {
+      {required Uint8List? textureBytes, required String? skin3DModelFilename}) {
     return _channel.invokeMethod('loadMesh', {
       'textureBytes': textureBytes,
       'skin3DModelFilename': skin3DModelFilename

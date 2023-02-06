@@ -129,6 +129,8 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
                     modelRenderable.isShadowCaster = false
                     modelRenderable.isShadowReceiver = false
                 }
+        }else{
+            faceRegionsRenderable = null
         }
 
         // Load the face mesh texture.
@@ -143,7 +145,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
             faceMeshTexture = null
         }
     }
-    
+
     fun record(){
         val recording = videoRecorder!!.onToggleRecord()
         if(recording) {
@@ -161,7 +163,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
                 context.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
             }
     }
-    
+
     fun arScenViewInit(call: MethodCall, result: MethodChannel.Result) {
         val enableAugmentedFaces: Boolean? = call.argument("enableAugmentedFaces")
         if (enableAugmentedFaces != null && enableAugmentedFaces) {
