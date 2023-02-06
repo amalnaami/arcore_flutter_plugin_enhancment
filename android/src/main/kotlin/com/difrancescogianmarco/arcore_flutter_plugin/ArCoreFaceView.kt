@@ -3,21 +3,20 @@ package com.difrancescogianmarco.arcore_flutter_plugin
 
 
 import android.app.Activity
-
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.media.CamcorderProfile
 import android.net.Uri
-import android.widget.Toast
 import android.provider.MediaStore
+import android.widget.Toast
 import com.difrancescogianmarco.arcore_flutter_plugin.utils.ArCoreUtils
 import com.google.ar.core.AugmentedFace
 import com.google.ar.core.Config
 import com.google.ar.core.TrackingState
 import com.google.ar.core.exceptions.CameraNotAvailableException
 import com.google.ar.core.exceptions.UnavailableException
-import com.google.ar.sceneform.Scene
+import com.google.ar.sceneform.*
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.rendering.Renderable
 import com.google.ar.sceneform.rendering.Texture
@@ -35,7 +34,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
     private val faceNodeMap = HashMap<AugmentedFace, AugmentedFaceNode>()
     private var faceSceneUpdateListener: Scene.OnUpdateListener
     private var videoRecorder=
-        VideoRecorder()
+        VideoRecording()
 
     init {
         val orientation: Int = context.getResources().getConfiguration().orientation
@@ -133,43 +132,36 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
         }
 
         // Load the face mesh texture.
-        //if(textureBytes != null) {
-        Texture.builder()
-            //.setSource(activity, Uri.parse("fox_face_mesh_texture.png"))
-            .setSource(BitmapFactory.decodeByteArray(textureBytes, 0, textureBytes!!.size))
-            .build()
-            .thenAccept { texture -> faceMeshTexture = texture }
-        //}
+        if(textureBytes != null) {
+            Texture.builder()
+                //.setSource(activity, Uri.parse("fox_face_mesh_texture.png"))
+                .setSource(BitmapFactory.decodeByteArray(textureBytes, 0, textureBytes!!.size))
+                .build()
+                .thenAccept { texture -> faceMeshTexture = texture }
+        }
+        else{
+            faceMeshTexture = null
+        }
     }
-
-
-
+    
     fun record(){
         val recording = videoRecorder!!.onToggleRecord()
         if(recording) {
             Toast.makeText(activity, "Started Recording", Toast.LENGTH_SHORT).show()
         }else{
-            Toast.makeText(activity, "Recording Stopped", Toast.LENGTH_SHORT).show()
-            val videoPath = videoRecorder!!.getVideoPath().getAbsolutePath()
-            //path = videoPath
-            Toast.makeText(activity, "Video saved: $videoPath", Toast.LENGTH_SHORT).show()
-            //Log.d(VideoRecorder.TAG, "Video saved: $videoPath")
-            val values = ContentValues()
-            values.put(MediaStore.Video.Media.TITLE, "Sceneform Video")
-            values.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
-            values.put(MediaStore.Video.Media.DATA, videoPath)
-            context.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
-        }
-
-
+                Toast.makeText(activity, "Recording Stopped", Toast.LENGTH_SHORT).show()
+                val videoPath = videoRecorder!!.getVideoPath().getAbsolutePath()
+                //path = videoPath
+                Toast.makeText(activity, "Video saved: $videoPath", Toast.LENGTH_SHORT).show()
+                //Log.d(VideoRecorder.TAG, "Video saved: $videoPath")
+                val values = ContentValues()
+                values.put(MediaStore.Video.Media.TITLE, "Sceneform Video")
+                values.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+                values.put(MediaStore.Video.Media.DATA, videoPath)
+                context.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
+            }
     }
-/*    fun getVideoPath(): String?{
-        return path;
-    }*/
-
-
-
-
+    
     fun arScenViewInit(call: MethodCall, result: MethodChannel.Result) {
         val enableAugmentedFaces: Boolean? = call.argument("enableAugmentedFaces")
         if (enableAugmentedFaces != null && enableAugmentedFaces) {
