@@ -6,9 +6,7 @@ import 'package:arcore_flutter_plugin/src/utils/vector_utils.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 
-import 'arcore_hit_test_result.dart';
-import 'arcore_node.dart';
-import 'arcore_plane.dart';
+import '../../arcore_flutter_plugin.dart';
 
 typedef StringResultHandler = void Function(String text);
 typedef UnsupportedHandler = void Function(String text);
