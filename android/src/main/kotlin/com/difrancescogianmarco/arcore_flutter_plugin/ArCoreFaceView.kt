@@ -33,13 +33,14 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
     private var faceMeshTexture: Texture? = null
     private val faceNodeMap = HashMap<AugmentedFace, AugmentedFaceNode>()
     private var faceSceneUpdateListener: Scene.OnUpdateListener
-    private var videoRecorder=
-        VideoRecording()
+    private var videoRecorder= VideoRecorder()
 
     init {
         val orientation: Int = context.getResources().getConfiguration().orientation
         videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_2160P, orientation)
         videoRecorder!!.setSceneView(arSceneView)
+        videoRecorder!!.setContext(context)
+        //videoRecorder!!.setVideoSize(arSceneView!!.getWidth(), arSceneView!!.getHeight())
 
         faceSceneUpdateListener = Scene.OnUpdateListener { frameTime ->
             run {
@@ -129,7 +130,8 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
                     modelRenderable.isShadowCaster = false
                     modelRenderable.isShadowReceiver = false
                 }
-        }else{
+        }
+        else{
             faceRegionsRenderable = null
         }
 
@@ -145,7 +147,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
             faceMeshTexture = null
         }
     }
-
+    
     fun record(){
         val recording = videoRecorder!!.onToggleRecord()
         if(recording) {
@@ -163,7 +165,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
                 context.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
             }
     }
-
+    
     fun arScenViewInit(call: MethodCall, result: MethodChannel.Result) {
         val enableAugmentedFaces: Boolean? = call.argument("enableAugmentedFaces")
         if (enableAugmentedFaces != null && enableAugmentedFaces) {
