@@ -181,7 +181,7 @@ public class VideoRecorder {
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             setVideoSize(Resources.getSystem().getDisplayMetrics().widthPixels,Resources.getSystem().getDisplayMetrics().heightPixels);
         } else {
-            setVideoSize(Resources.getSystem().getDisplayMetrics().heightPixels, Resources.getSystem().getDisplayMetrics().widthPixels);
+            setVideoSize(Resources.getSystem().getDisplayMetrics().widthPixels,Resources.getSystem().getDisplayMetrics().heightPixels);
         }
         setVideoCodec(profile.videoCodec);
         setBitRate(profile.videoBitRate);
