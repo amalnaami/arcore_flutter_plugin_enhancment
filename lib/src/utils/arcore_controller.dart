@@ -192,15 +192,9 @@ class ArCoreController {
       node.degreesPerSecond.addListener(() => _handleRotationChanged(node));
     }
   }
-
-  Future<void> recordd() {
+  
+  Future<void> recordd(){
     return _channel.invokeMethod('record');
-  }
-
-  Future<String> getVideoPathh() async {
-    final String path = await _channel.invokeMethod('getVideoPath');
-    //print("path is: $path");
-    return path;
   }
 
   void _handlePositionChanged(ArCoreNode node) {
