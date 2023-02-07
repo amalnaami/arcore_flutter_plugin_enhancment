@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -64,9 +63,7 @@ public class VideoRecorder {
     private int bitRate = DEFAULT_BITRATE;
     private int frameRate = DEFAULT_FRAMERATE;
     private Surface encoderSurface;
-    DisplayMetrics displayMetrics = new DisplayMetrics();
-    int height = displayMetrics.heightPixels;
-    int width = displayMetrics.widthPixels;
+
     private static final int[] FALLBACK_QUALITY_LEVELS = {
             CamcorderProfile.QUALITY_HIGH,
             CamcorderProfile.QUALITY_2160P,
@@ -128,7 +125,7 @@ public class VideoRecorder {
         encoderSurface = mediaRecorder.getSurface();
 
         sceneView.startMirroringToSurface(
-                encoderSurface, 0, 0, width, height);
+                encoderSurface, 0, 0, videoSize.getWidth(), videoSize.getHeight());
 
         recordingVideoFlag = true;
     }
@@ -175,7 +172,7 @@ public class VideoRecorder {
         mediaRecorder.setOutputFile(videoPath.getAbsolutePath());
         mediaRecorder.setVideoEncodingBitRate(bitRate);
         mediaRecorder.setVideoFrameRate(frameRate);
-        mediaRecorder.setVideoSize(width,height);
+        mediaRecorder.setVideoSize(videoSize.getWidth(), videoSize.getHeight());
         mediaRecorder.setVideoEncoder(videoCodec);
         
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
@@ -208,11 +205,10 @@ public class VideoRecorder {
             }
         }
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            setVideoSize(width, height);
+            setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
         } else {
-            setVideoSize(height,width);
+            setVideoSize(profile.videoFrameHeight, profile.videoFrameWidth);
         }
-        assert profile != null;
         setVideoCodec(profile.videoCodec);
         setBitRate(profile.videoBitRate);
         setFrameRate(profile.videoFrameRate);
