@@ -1,6 +1,7 @@
 package com.difrancescogianmarco.arcore_flutter_plugin;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.media.CamcorderProfile;
 import android.util.Log;
 import android.media.MediaRecorder;
@@ -178,9 +179,9 @@ public class VideoRecorder {
             }
         }
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
+            setVideoSize(Resources.getSystem().getDisplayMetrics().widthPixels,Resources.getSystem().getDisplayMetrics().heightPixels);
         } else {
-            setVideoSize(profile.videoFrameHeight, profile.videoFrameWidth);
+            setVideoSize(Resources.getSystem().getDisplayMetrics().heightPixels, Resources.getSystem().getDisplayMetrics().widthPixels);
         }
         setVideoCodec(profile.videoCodec);
         setBitRate(profile.videoBitRate);
