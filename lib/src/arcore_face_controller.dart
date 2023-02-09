@@ -84,4 +84,10 @@ class ArCoreFaceController {
   Future<void> takePictureFront(){
     return _channel.invokeMethod('takePicture');
   }
+  Future<String?> getImagePath() async {
+    final String? imgPath = await _channel.invokeMethod('getImagePath');
+    //print("path is: $path");
+    print("path is: $imgPath");
+    return imgPath;
+  }
 }

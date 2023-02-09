@@ -65,6 +65,7 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
     private val faceNodeMap = HashMap<AugmentedFace, AugmentedFaceNode>()
     private var videoRecorder= VideoRecorder()
     private var flashEnabled = false
+    private var imagePath : String = " "
 
 
     init {
@@ -226,6 +227,9 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
                 debugLog(" takeScreenshot")
                 takeScreenshot(call, result)
 
+            }
+            "getImagePath" -> {
+                result.success(imagePath)
             }
             "loadMesh" -> {
                 val map = call.arguments as HashMap<String, Any>
@@ -459,11 +463,12 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
 
 //        val now = LocalDateTime.now()
 //        now.format(DateTimeFormatter.ofPattern("M/d/y H:m:ss"))
-        val now = "rawScreenshot"
+        val now = "pic"
         // android/data/com.hswo.mvc_2021.hswo_mvc_2021_flutter_ar/files/
         // activity.applicationContext.getFilesDir().toString() //doesnt work!!
         // Environment.getExternalStorageDirectory()
-        val mPath: String =  Environment.getExternalStorageDirectory().toString() + "/DCIM/" + now + ".jpg"
+        //Toast.makeText(activity, "saving pic", Toast.LENGTH_SHORT).show()
+        val mPath: String =  context.getCacheDir().toString() + now + System.currentTimeMillis()  + ".jpg"
         val mediaFile = File(mPath)
         debugLog(mediaFile.toString())
         //Log.i("path","fileoutputstream opened")
@@ -473,6 +478,7 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
         fileOutputStream.flush()
         fileOutputStream.close()
 //        Log.i("path","fileoutputstream closed")
+        imagePath = mPath
         return mPath as String
     }
 
