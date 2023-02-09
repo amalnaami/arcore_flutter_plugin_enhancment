@@ -269,9 +269,9 @@ class ArCoreController {
   }
 
   Future<String?> getImagePathBak() async {
-    final String? imgPath = await _channel.invokeMethod('getImagePath');
-    //print("path is: $path");
-    print("path is: $imgPath");
-    return imgPath;
-  }
+      final String? imgPath = await _channel.invokeMethod('getImagePath');
+      //print("path is: $path");
+      print("path is: $imgPath");
+      return imgPath;
+    }
 }
