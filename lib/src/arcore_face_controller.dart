@@ -80,4 +80,8 @@ class ArCoreFaceController {
   void dispose() {
     _channel.invokeMethod<void>('dispose');
   }
+
+  Future<void> takePictureFront(){
+    return _channel.invokeMethod('takePicture');
+  }
 }

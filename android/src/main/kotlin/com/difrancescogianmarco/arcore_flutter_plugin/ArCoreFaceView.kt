@@ -9,7 +9,22 @@ import android.graphics.BitmapFactory
 import android.media.CamcorderProfile
 import android.net.Uri
 import android.provider.MediaStore
+import android.graphics.Bitmap
+import android.view.PixelCopy
+import android.os.Handler
+import android.os.HandlerThread
+import android.content.ContextWrapper
+import java.io.FileOutputStream
+import java.io.File
+import java.io.IOException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import android.os.Environment
+import android.content.pm.PackageManager
+import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraManager
 import android.widget.Toast
+import com.difrancescogianmarco.arcore_flutter_plugin.VideoRecorder
 import com.difrancescogianmarco.arcore_flutter_plugin.utils.ArCoreUtils
 import com.google.ar.core.AugmentedFace
 import com.google.ar.core.Config
@@ -33,7 +48,9 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
     private var faceMeshTexture: Texture? = null
     private val faceNodeMap = HashMap<AugmentedFace, AugmentedFaceNode>()
     private var faceSceneUpdateListener: Scene.OnUpdateListener
-    private var videoRecorder= VideoRecorder()
+    private var videoRecorder = VideoRecorder()
+    private var flashEnabled = false
+    //private var newRecorder: Boolean = true
 
     init {
         val orientation: Int = context.getResources().getConfiguration().orientation
@@ -104,6 +121,12 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
                     result.success(videoRecorder!!.getVideoPath().getAbsolutePath())
                     //methodChannel.invokeMethod("getVideoPath", path.toString())
                 }
+                "toggleFlashlight" -> {
+                    toggleFlash()
+                }
+                "takePicture" -> {
+                    takeScreenshot(call, result)
+                }
                 "dispose" -> {
                     debugLog( " updateMaterials")
                     dispose()
@@ -149,22 +172,136 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
     }
     
     fun record(){
+/*        if(newRecorder) {
+            videoRecorder = VideoRecorder()
+
+            val orientation: Int = context.getResources().getConfiguration().orientation
+            videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_2160P, orientation)
+            videoRecorder!!.setSceneView(arSceneView)
+            videoRecorder!!.setContext(context)
+            newRecorder = false
+
+        }*/
         val recording = videoRecorder!!.onToggleRecord()
-        if(recording) {
+        if (recording) {
             Toast.makeText(activity, "Started Recording", Toast.LENGTH_SHORT).show()
-        }else{
-                Toast.makeText(activity, "Recording Stopped", Toast.LENGTH_SHORT).show()
-                val videoPath = videoRecorder!!.getVideoPath().getAbsolutePath()
-                //path = videoPath
-                Toast.makeText(activity, "Video saved: $videoPath", Toast.LENGTH_SHORT).show()
-                //Log.d(VideoRecorder.TAG, "Video saved: $videoPath")
-                val values = ContentValues()
-                values.put(MediaStore.Video.Media.TITLE, "Sceneform Video")
-                values.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
-                values.put(MediaStore.Video.Media.DATA, videoPath)
-                context.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
-            }
+        } else {
+            Toast.makeText(activity, "Recording Stopped", Toast.LENGTH_SHORT).show()
+            val videoPath = videoRecorder!!.getVideoPath().getAbsolutePath()
+            //path = videoPath
+            Toast.makeText(activity, "Video saved: $videoPath", Toast.LENGTH_SHORT).show()
+            //Log.d(VideoRecorder.TAG, "Video saved: $videoPath")
+            val values = ContentValues()
+            values.put(MediaStore.Video.Media.TITLE, "Sceneform Video")
+            values.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+            values.put(MediaStore.Video.Media.DATA, videoPath)
+            context.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
+            //newRecorder = true
+        }
     }
+
+    private fun takeScreenshot(call: MethodCall, result: MethodChannel.Result) {
+        try {
+            // create bitmap screen capture
+
+            // Create a bitmap the size of the scene view.
+            Toast.makeText(activity, "taking picture"+System.currentTimeMillis(), Toast.LENGTH_SHORT).show()
+            val bitmap: Bitmap = Bitmap.createBitmap(arSceneView!!.getWidth(), arSceneView!!.getHeight(),
+                Bitmap.Config.ARGB_8888)
+
+            // Create a handler thread to offload the processing of the image.
+            val handlerThread = HandlerThread("PixelCopier")
+            handlerThread.start()
+            // Make the request to copy.
+            // Make the request to copy.
+            PixelCopy.request(arSceneView!!, bitmap, { copyResult ->
+                if (copyResult === PixelCopy.SUCCESS) {
+                    try {
+                        saveBitmapToDisk(bitmap)
+                    } catch (e: IOException) {
+                        e.printStackTrace();
+                    }
+                }
+                handlerThread.quitSafely()
+            }, Handler(handlerThread.getLooper()))
+
+        } catch (e: Throwable) {
+            // Several error may come out with file handling or DOM
+            e.printStackTrace()
+        }
+        result.success(null)
+    }
+
+    @Throws(IOException::class)
+    fun saveBitmapToDisk(bitmap: Bitmap):String {
+
+//        val now = LocalDateTime.now()
+//        now.format(DateTimeFormatter.ofPattern("M/d/y H:m:ss"))
+        val now = "pic"
+        // android/data/com.hswo.mvc_2021.hswo_mvc_2021_flutter_ar/files/
+        // activity.applicationContext.getFilesDir().toString() //doesnt work!!
+        // Environment.getExternalStorageDirectory()
+        val mPath: String =  Environment.getExternalStorageDirectory().toString() + "/DCIM/"+ "pic"+ System.currentTimeMillis()  + ".jpg"
+        val mediaFile = File(mPath)
+        debugLog(mediaFile.toString())
+        //Log.i("path","fileoutputstream opened")
+        //Log.i("path",mPath)
+        val fileOutputStream = FileOutputStream(mediaFile)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
+        fileOutputStream.flush()
+        fileOutputStream.close()
+//        Log.i("path","fileoutputstream closed")
+        return mPath as String
+    }
+    
+    fun toggleFlash(){
+        if(hasFlash()){
+            if(flashEnabled){
+                disableFlash()
+            }else{
+                enableFlash()
+            }
+        }
+    }
+    
+    fun enableFlash() {
+        if (hasFlash()) {
+            flashEnabled = true
+
+            setTorchMode(flashEnabled)
+        }
+    }
+    
+    fun disableFlash() {
+        if (hasFlash()) {
+            flashEnabled = false
+
+            setTorchMode(flashEnabled)
+        }
+    }
+    
+    private fun hasFlash(): Boolean {
+        return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+    }
+    
+    private fun getCameraManager(): CameraManager {
+        return context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+    }
+
+    private fun setTorchMode(mode: Boolean) {
+        try {
+            val cameraManager = getCameraManager()
+            val cameraId = cameraManager.cameraIdList[0]
+            Toast.makeText(activity, "Id:"+cameraId, Toast.LENGTH_SHORT).show()
+
+            cameraManager.setTorchMode(cameraId, mode)
+        } catch (e: CameraAccessException) {
+            flashEnabled = false
+            e.printStackTrace()
+        }
+    }
+
+
     
     fun arScenViewInit(call: MethodCall, result: MethodChannel.Result) {
         val enableAugmentedFaces: Boolean? = call.argument("enableAugmentedFaces")

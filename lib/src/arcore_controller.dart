@@ -263,4 +263,8 @@ class ArCoreController {
       print(ex);
     }
   }
+
+  Future<void> takePictureBack() {
+    return _channel.invokeMethod('takePicture');
+  }
 }
