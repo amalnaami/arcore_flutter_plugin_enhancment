@@ -179,9 +179,9 @@ public class VideoRecorder {
             }
         }
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            setVideoSize(Resources.getSystem().getDisplayMetrics().widthPixels,Resources.getSystem().getDisplayMetrics().heightPixels);
+            setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
         } else {
-            setVideoSize(Resources.getSystem().getDisplayMetrics().widthPixels,Resources.getSystem().getDisplayMetrics().heightPixels);
+            setVideoSize(profile.videoFrameHeight, profile.videoFrameWidth);
         }
         setVideoCodec(profile.videoCodec);
         setBitRate(profile.videoBitRate);

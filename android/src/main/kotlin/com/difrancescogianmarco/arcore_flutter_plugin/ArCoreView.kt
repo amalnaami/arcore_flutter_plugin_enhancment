@@ -72,7 +72,7 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
         methodChannel.setMethodCallHandler(this)
         arSceneView = ArSceneView(context)
         val orientation: Int = context.getResources().getConfiguration().orientation
-        videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_2160P, orientation)
+        videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_1080P, orientation)
         videoRecorder!!.setSceneView(arSceneView)
         videoRecorder!!.setContext(context)
 /*        val w = arSceneView!!.getWidth()
