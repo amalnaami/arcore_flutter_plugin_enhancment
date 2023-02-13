@@ -55,7 +55,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
 
     init {
         val orientation: Int = context.getResources().getConfiguration().orientation
-        videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_1080P, orientation)
+        videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_HIGH, orientation)
         videoRecorder!!.setSceneView(arSceneView)
         videoRecorder!!.setContext(context)
         //videoRecorder!!.setVideoSize(arSceneView!!.getWidth(), arSceneView!!.getHeight())
@@ -245,16 +245,16 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
         // android/data/com.hswo.mvc_2021.hswo_mvc_2021_flutter_ar/files/
         // activity.applicationContext.getFilesDir().toString() //doesnt work!!
         // Environment.getExternalStorageDirectory()
-        val mPath: String =  context.getCacheDir().toString() + now + System.currentTimeMillis()  + ".jpg"
+        val mPath: String =  context.cacheDir.toString() + now + System.currentTimeMillis()  + ".jpg"
         //Toast.makeText(activity, "saving pic" +mPath, Toast.LENGTH_SHORT).show()
         val mediaFile = File(mPath)
         debugLog(mediaFile.toString())
         //Log.i("path","fileoutputstream opened")
         //Log.i("path",mPath)
-        val fileOutputStream = FileOutputStream(mediaFile)
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
-        fileOutputStream.flush()
-        fileOutputStream.close()
+//        val fileOutputStream = FileOutputStream(mediaFile)
+//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
+//        fileOutputStream.flush()
+//        fileOutputStream.close()
 //        Log.i("path","fileoutputstream closed")
         imagePath = mPath
         //Toast.makeText(activity, "path" +imagePath, Toast.LENGTH_SHORT).show()
