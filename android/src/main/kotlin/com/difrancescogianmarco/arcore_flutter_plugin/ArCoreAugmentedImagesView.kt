@@ -6,9 +6,12 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.CamcorderProfile
+import android.os.Handler
+import android.os.HandlerThread
 import android.provider.MediaStore
 import android.util.Log
 import android.util.Pair
+import android.view.PixelCopy
 import android.widget.Toast
 import com.difrancescogianmarco.arcore_flutter_plugin.flutter_models.FlutterArCoreNode
 import com.difrancescogianmarco.arcore_flutter_plugin.flutter_models.FlutterArCorePose
@@ -30,6 +33,8 @@ import java.util.*
 import com.google.ar.core.*
 import com.google.ar.sceneform.ArSceneView
 import kotlinx.coroutines.*
+import java.io.File
+import java.io.FileOutputStream
 import kotlin.coroutines.CoroutineContext
 
 class ArCoreAugmentedImagesView(
@@ -50,6 +55,7 @@ class ArCoreAugmentedImagesView(
     private val augmentedImageMap = HashMap<Int, Pair<AugmentedImage, AnchorNode>>()
     private var videoRecorder =
         VideoRecorder()
+    private var imagePath : String = " "
 
     private var job: Job = Job()
     override val coroutineContext: CoroutineContext
@@ -237,6 +243,17 @@ class ArCoreAugmentedImagesView(
                     result.success(videoRecorder!!.getVideoPath().getAbsolutePath())
                     //methodChannel.invokeMethod("getVideoPath", path.toString())
                 }
+                "takeScreenshot" -> {
+                    debugLog(" takeScreenshot")
+                    takeScreenshot(call, result)
+
+                }
+                "getImagePath" -> {
+                    result.success(imagePath)
+                }
+                "takePicture" -> {
+                    takeScreenshot(call, result)
+                }
                 "dispose" -> {
                     debugLog(" updateMaterials")
                     job.cancel()
@@ -251,6 +268,60 @@ class ArCoreAugmentedImagesView(
             job.cancel()
             result.error("Unsupported Device", "", null)
         }
+    }
+    private fun takeScreenshot(call: MethodCall, result: MethodChannel.Result) {
+        try {
+            // create bitmap screen capture
+
+            // Create a bitmap the size of the scene view.
+            val bitmap: Bitmap = Bitmap.createBitmap(arSceneView!!.getWidth(), arSceneView!!.getHeight(),
+                Bitmap.Config.ARGB_8888)
+
+            // Create a handler thread to offload the processing of the image.
+            val handlerThread = HandlerThread("PixelCopier")
+            handlerThread.start()
+            // Make the request to copy.
+            // Make the request to copy.
+            PixelCopy.request(arSceneView!!, bitmap, { copyResult ->
+                if (copyResult === PixelCopy.SUCCESS) {
+                    try {
+                        saveBitmapToDisk(bitmap)
+                    } catch (e: IOException) {
+                        e.printStackTrace();
+                    }
+                }
+                handlerThread.quitSafely()
+            }, Handler(handlerThread.getLooper()))
+
+        } catch (e: Throwable) {
+            // Several error may come out with file handling or DOM
+            e.printStackTrace()
+        }
+        result.success(null)
+    }
+
+    @Throws(IOException::class)
+    fun saveBitmapToDisk(bitmap: Bitmap):String {
+
+//        val now = LocalDateTime.now()
+//        now.format(DateTimeFormatter.ofPattern("M/d/y H:m:ss"))
+        val now = "pic"
+        // android/data/com.hswo.mvc_2021.hswo_mvc_2021_flutter_ar/files/
+        // activity.applicationContext.getFilesDir().toString() //doesnt work!!
+        // Environment.getExternalStorageDirectory()
+        //Toast.makeText(activity, "saving pic", Toast.LENGTH_SHORT).show()
+        val mPath: String =  context.getCacheDir().toString() + now + System.currentTimeMillis()  + ".jpg"
+        val mediaFile = File(mPath)
+        debugLog(mediaFile.toString())
+        //Log.i("path","fileoutputstream opened")
+        //Log.i("path",mPath)
+        val fileOutputStream = FileOutputStream(mediaFile)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
+        fileOutputStream.flush()
+        fileOutputStream.close()
+//        Log.i("path","fileoutputstream closed")
+        imagePath = mPath
+        return mPath as String
     }
 
     private fun arScenViewInit(call: MethodCall, result: MethodChannel.Result) {
