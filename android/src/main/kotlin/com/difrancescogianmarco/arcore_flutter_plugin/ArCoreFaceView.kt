@@ -55,7 +55,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
 
     init {
         val orientation: Int = context.getResources().getConfiguration().orientation
-        videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_2K, orientation)
+        videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_1080P, orientation)
         videoRecorder!!.setSceneView(arSceneView)
         videoRecorder!!.setContext(context)
         //videoRecorder!!.setVideoSize(arSceneView!!.getWidth(), arSceneView!!.getHeight())
