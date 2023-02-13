@@ -344,6 +344,12 @@ class ArCoreAugmentedImagesView(
                 ArCoreUtils.requestCameraPermission(activity, RC_PERMISSIONS)
                 return
             }
+            if (!ArCoreUtils.hasWritePermission(activity)) {
+                ArCoreUtils.requestWritePermission(activity)
+            }
+            if (!ArCoreUtils.hasAudioPermission(activity)) {
+                ArCoreUtils.requestAudioPermission(activity)
+            }
 
             debugLog("Camera has permission")
             // If the session wasn't created yet, don't resume rendering.
@@ -503,4 +509,6 @@ class ArCoreAugmentedImagesView(
             context.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
         }
     }
+
+
 }
