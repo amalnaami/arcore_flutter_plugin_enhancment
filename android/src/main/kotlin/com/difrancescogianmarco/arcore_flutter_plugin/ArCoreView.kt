@@ -73,7 +73,7 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
         methodChannel.setMethodCallHandler(this)
         arSceneView = ArSceneView(context)
         val orientation: Int = context.getResources().getConfiguration().orientation
-        videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_HIGH, orientation)
+        videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_2K, orientation)
         videoRecorder!!.setSceneView(arSceneView)
         videoRecorder!!.setContext(context)
 /*        val w = arSceneView!!.getWidth()
@@ -468,15 +468,15 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
         // activity.applicationContext.getFilesDir().toString() //doesnt work!!
         // Environment.getExternalStorageDirectory()
         //Toast.makeText(activity, "saving pic", Toast.LENGTH_SHORT).show()
-        val mPath: String =  context.cacheDir.toString() + now + System.currentTimeMillis()  + ".jpg"
+        val mPath: String =  context.getCacheDir().toString() + now + System.currentTimeMillis()  + ".jpg"
         val mediaFile = File(mPath)
         debugLog(mediaFile.toString())
         //Log.i("path","fileoutputstream opened")
         //Log.i("path",mPath)
-//        val fileOutputStream = FileOutputStream(mediaFile)
-//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
-//        fileOutputStream.flush()
-//        fileOutputStream.close()
+        val fileOutputStream = FileOutputStream(mediaFile)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
+        fileOutputStream.flush()
+        fileOutputStream.close()
 //        Log.i("path","fileoutputstream closed")
         imagePath = mPath
         return mPath as String
