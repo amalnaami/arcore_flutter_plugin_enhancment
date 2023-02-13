@@ -1,11 +1,15 @@
 package com.difrancescogianmarco.arcore_flutter_plugin
 
 import android.app.Activity
+import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.CamcorderProfile
+import android.provider.MediaStore
 import android.util.Log
 import android.util.Pair
+import android.widget.Toast
 import com.difrancescogianmarco.arcore_flutter_plugin.flutter_models.FlutterArCoreNode
 import com.difrancescogianmarco.arcore_flutter_plugin.flutter_models.FlutterArCorePose
 import com.difrancescogianmarco.arcore_flutter_plugin.utils.ArCoreUtils
@@ -23,8 +27,8 @@ import io.flutter.plugin.common.MethodChannel
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.util.*
-import com.google.ar.core.exceptions.*
 import com.google.ar.core.*
+import com.google.ar.sceneform.ArSceneView
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
@@ -36,6 +40,8 @@ class ArCoreAugmentedImagesView(activity: Activity, context: Context, messenger:
     // the
     // database.
     private val augmentedImageMap = HashMap<Int, Pair<AugmentedImage, AnchorNode>>()
+    private var videoRecorder=
+        VideoRecorder()
 
     private var job: Job = Job()
     override val coroutineContext: CoroutineContext
@@ -46,7 +52,12 @@ class ArCoreAugmentedImagesView(activity: Activity, context: Context, messenger:
         sceneUpdateListener = Scene.OnUpdateListener { frameTime ->
 
             val frame = arSceneView?.arFrame ?: return@OnUpdateListener
+            val orientation: Int = context.getResources().getConfiguration().orientation
 
+            videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_1080P, orientation)
+
+            videoRecorder!!.setSceneView(ArSceneView(context))
+            videoRecorder!!.setContext(context)
             // If there is no frame or ARCore is not tracking yet, just return.
             if (frame.camera.trackingState != TrackingState.TRACKING) {
                 return@OnUpdateListener
@@ -192,6 +203,14 @@ class ArCoreAugmentedImagesView(activity: Activity, context: Context, messenger:
                     } catch (ex: Exception) {
                         result.error("removeARCoreNodeWithIndex", ex.localizedMessage, null)
                     }
+                }
+                "record" -> {
+                    record()
+                }
+                "getVideoPath" -> {
+                    //val path = videoRecorder!!.getVideoPath().getAbsolutePath()
+                    result.success(videoRecorder!!.getVideoPath().getAbsolutePath())
+                    //methodChannel.invokeMethod("getVideoPath", path.toString())
                 }
                 "dispose" -> {
                     debugLog( " updateMaterials")
@@ -361,6 +380,23 @@ class ArCoreAugmentedImagesView(activity: Activity, context: Context, messenger:
         } catch (e: Exception) {
             Log.e(TAG, "IO exception loading augmented image bitmap.", e)
             return  null
+        }
+    }
+    fun record(){
+        val recording = videoRecorder!!.onToggleRecord()
+        if(recording) {
+            Toast.makeText(activity, "Started Recording", Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(activity, "Recording Stopped", Toast.LENGTH_SHORT).show()
+            val videoPath = videoRecorder!!.getVideoPath().getAbsolutePath()
+            //path = videoPath
+            Toast.makeText(activity, "Video saved: $videoPath", Toast.LENGTH_SHORT).show()
+            //Log.d(VideoRecorder.TAG, "Video saved: $videoPath")
+            val values = ContentValues()
+            values.put(MediaStore.Video.Media.TITLE, "Sceneform Video")
+            values.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+            values.put(MediaStore.Video.Media.DATA, videoPath)
+            context.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
         }
     }
 }
