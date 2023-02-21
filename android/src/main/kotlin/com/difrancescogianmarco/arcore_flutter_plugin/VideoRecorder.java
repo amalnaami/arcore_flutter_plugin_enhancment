@@ -1,10 +1,36 @@
 package com.difrancescogianmarco.arcore_flutter_plugin;
+
+
+
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.content.res.Resources;
+import android.Manifest;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.CamcorderProfile;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import android.media.MediaRecorder;
+import android.os.Environment;
+import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import com.google.ar.sceneform.SceneView;
@@ -107,10 +133,10 @@ public class VideoRecorder {
     private void buildFilename() {
         if (videoDirectory == null) {
             videoDirectory =
-                    context.getCacheDir();
-/*                    new File(
+                    //context.getCacheDir();
+                    new File(
                             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-                                    + "/Sceneform");*/
+                                    + "/Sceneform");
         }
         if (videoBaseName == null || videoBaseName.isEmpty()) {
             videoBaseName = "Sample";
@@ -135,6 +161,7 @@ public class VideoRecorder {
         // Stop recording
         mediaRecorder.stop();
         mediaRecorder.reset();
+        //mediaRecorder.release();
     }
 
     private void setUpMediaRecorder() throws IOException {
@@ -163,6 +190,7 @@ public class VideoRecorder {
     public void setVideoSize(int width, int height) {
         videoSize = new Size(width, height);
     }
+    
 
     public void setVideoQuality(int quality, int orientation) {
         CamcorderProfile profile = null;
@@ -179,9 +207,9 @@ public class VideoRecorder {
             }
         }
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
+            setVideoSize(2348, 1080);
         } else {
-            setVideoSize(profile.videoFrameHeight, profile.videoFrameWidth);
+            setVideoSize(1080, 2348);
         }
         setVideoCodec(profile.videoCodec);
         setBitRate(profile.videoBitRate);
@@ -191,5 +219,128 @@ public class VideoRecorder {
     public void setVideoCodec(int videoCodec) {
         this.videoCodec = videoCodec;
     }
+
+    public boolean isRecording() {
+        return recordingVideoFlag;
+    }
+
+/*    public void toggleRecording(View unusedView) {
+
+        if (!checkPermission()) {
+            Log.e(TAG, "Video recording requires the EXTERNAL_STORAGE permission");
+            Toast.makeText(
+                            this,
+                            "Video recording requires the EXTERNAL_STORAGE permission",
+                            Toast.LENGTH_LONG)
+                    .show();
+            requestPermission();
+        }
+        boolean recording = this.onToggleRecord();
+        if (recording) {
+            Toast.makeText(this, "Started Recording", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Recording Stopped", Toast.LENGTH_SHORT).show();
+            String videoPath = this.getVideoPath().getAbsolutePath();
+            Toast.makeText(this, "Video saved: " + videoPath, Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Video saved: " + videoPath);
+            // Send  notification of updated content.
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Video.Media.TITLE, "Sceneform Video");
+            values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+            values.put(MediaStore.Video.Media.DATA, videoPath);
+            getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+        }
+    }*/
+
+/*    public void requestPermission(){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+            // Android is 11 or above
+            try {
+                Log.d(TAG, "requestPermission: try");
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                Uri uri = Uri.fromParts("package", this.getPackageName(),null);
+                intent.setData(uri);
+                startActivityForResult(intent, 1);
+            }
+            catch (Exception e){
+                Log.d(TAG, "requestPermission: Catch", e);
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                storageActivityResultLauncher.launch(intent);
+            }
+
+        }
+        else{
+            // Android is below 11
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
+                    100
+            );
+
+        }
+    }
+
+    public ActivityResultLauncher<Intent> storageActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                public void onActivityResult(ActivityResult result) {
+                    Log.d(TAG, "onActivityResult: ");
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        // Android is 11 or above
+                        if (Environment.isExternalStorageManager()) {
+                            //Manage External Storage Permission is granted
+                            Log.d(TAG, "onActivityResult: Manage External Storage Permission is granted");
+                        }
+                        else {
+                            //Manage External Storage Permission is denied
+                            Log.d(TAG, "onActivityResult: Manage External Storage Permission is denied ");
+                            //Toast.makeText(this, "Manage External Storage permission is denied", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+            }
+    );
+
+    public boolean checkPermission(){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+            // Android is 11 or above
+            return Environment.isExternalStorageManager();
+        }
+        else{
+            // Android is below 11
+            int write = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            //int read = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+
+            return write == PackageManager.PERMISSION_GRANTED; //&& read == PackageManager.PERMISSION_GRANTED;
+
+        }
+    }
+
+
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == 100){
+            if(grantResults.length > 0){
+                //check each permission if granted or not
+                boolean write = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                boolean read = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+
+                if(write && read){
+                    //External Storage permissions granted
+                    Log.d(TAG, "onRequestPermissionsResult: External Storage permissions granted");
+                }
+                else{
+                    //External Storage permissions denied
+                    Log.d(TAG, "onRequestPermissionsResult: External Storage permissions denied");
+                    Toast.makeText(this,"External Storage permissions denied", Toast.LENGTH_SHORT).show();
+
+                }
+            }
+        }
+    }*/
+
 
 }

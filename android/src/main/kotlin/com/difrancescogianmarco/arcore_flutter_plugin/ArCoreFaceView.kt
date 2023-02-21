@@ -3,6 +3,10 @@ package com.difrancescogianmarco.arcore_flutter_plugin
 
 
 import android.app.Activity
+
+import android.content.ContentUris
+import android.provider.DocumentsContract
+import android.database.Cursor
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.BitmapFactory
@@ -50,14 +54,18 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
     private var faceSceneUpdateListener: Scene.OnUpdateListener
     private var videoRecorder = VideoRecorder()
     private var flashEnabled = false
-    private var imagePath : String = " "
+    //private var path : File? = null
+    private var imggdirectory : File? = null
+    private var imagePath : String? = " "
+    private val imggdir =  File(context.getCacheDir().getAbsolutePath())
     //private var newRecorder: Boolean = true
 
     init {
         val orientation: Int = context.getResources().getConfiguration().orientation
-        videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_1080P, orientation)
         videoRecorder!!.setSceneView(arSceneView)
         videoRecorder!!.setContext(context)
+
+        videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_HIGH, orientation)
         //videoRecorder!!.setVideoSize(arSceneView!!.getWidth(), arSceneView!!.getHeight())
 
         faceSceneUpdateListener = Scene.OnUpdateListener { frameTime ->
@@ -67,6 +75,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
                     return@OnUpdateListener
                 }*/
                 val faceList = arSceneView?.session?.getAllTrackables(AugmentedFace::class.java)
+                //videoRecorder!!.setVideoSize(arSceneView!!.getWidth(), arSceneView!!.getHeight())
 
                 faceList?.let {
                     // Make new AugmentedFaceNodes for any new faces.
@@ -186,6 +195,13 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
             newRecorder = false
 
         }*/
+        //this.sceneView.getWidth()
+        //this.sceneView.getHeight()
+
+        //Toast.makeText(activity, "Width:"+arSceneView!!.getWidth() , Toast.LENGTH_SHORT).show()
+        //Toast.makeText(activity, "Height:"+arSceneView!!.getHeight() , Toast.LENGTH_SHORT).show()
+        //videoRecorder!!.setVideoSize(arSceneView!!.getHeight(), arSceneView!!.getWidth())
+
         val recording = videoRecorder!!.onToggleRecord()
         if (recording) {
             Toast.makeText(activity, "Started Recording", Toast.LENGTH_SHORT).show()
@@ -209,7 +225,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
             // create bitmap screen capture
 
             // Create a bitmap the size of the scene view.
-            Toast.makeText(activity, "taking picture"+System.currentTimeMillis(), Toast.LENGTH_SHORT).show()
+            //Toast.makeText(activity, "taking picture"+System.currentTimeMillis(), Toast.LENGTH_SHORT).show()
             val bitmap: Bitmap = Bitmap.createBitmap(arSceneView!!.getWidth(), arSceneView!!.getHeight(),
                 Bitmap.Config.ARGB_8888)
 
@@ -221,7 +237,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
             PixelCopy.request(arSceneView!!, bitmap, { copyResult ->
                 if (copyResult === PixelCopy.SUCCESS) {
                     try {
-                        saveBitmapToDisk(bitmap)
+                        saveBitmap(bitmap)
                     } catch (e: IOException) {
                         e.printStackTrace();
                     }
@@ -231,12 +247,219 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
 
         } catch (e: Throwable) {
             // Several error may come out with file handling or DOM
-            e.printStackTrace()
+            //e.printStackTrace()
         }
         result.success(null)
     }
-
     @Throws(IOException::class)
+    fun saveBitmap(bitmap: Bitmap): Uri {
+
+/*        if (imggdirectory == null) {
+
+            imggdirectory =
+                File(context.getCacheDir() + "/Sceneform")
+        }
+        val path = File(imggdirectory, "pic" + System.currentTimeMillis() + ".jpg"
+        )
+
+        val dir: File = path.getParentFile()
+        if (!dir.exists()) {
+            dir.mkdirs()
+        }*/
+
+        if (!imggdir.exists()) {
+            imggdir.mkdirs()
+        }
+
+        val imggpath = File(
+            imggdir,
+            "img" 
+                    //+ System.currentTimeMillis() + ".jpeg"
+        )
+
+        Toast.makeText(activity, "saving picture: " + imggpath.getAbsolutePath(), Toast.LENGTH_LONG).show()
+
+
+        val values = ContentValues().apply {
+            put(MediaStore.MediaColumns.TITLE, "AR picture" )
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            put(MediaStore.Images.Media.RELATIVE_PATH, imggpath.getAbsolutePath())
+        }
+        //imagePath = imggpath.getAbsolutePath()
+
+
+        val resolver = context.contentResolver
+        var uri: Uri? = null
+
+
+
+
+        try {
+            uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+                ?: throw IOException("Failed to create new MediaStore record.")
+
+            resolver.openOutputStream(uri)?.use {
+                if (!bitmap.compress(Bitmap.CompressFormat.JPEG, 95, it))
+                    throw IOException("Failed to save bitmap.")
+            } ?: throw IOException("Failed to open output stream.")
+            imagePath = getRealPathFromURI(context, uri)
+
+            return uri
+
+        } catch (e: IOException) {
+
+            uri?.let { orphanUri ->
+                // Don't leave an orphan entry in the MediaStore
+                resolver.delete(orphanUri, null, null)
+            }
+
+            throw e
+        }
+    }
+
+    fun getRealPathFromURI(context: Context, uri: Uri): String? {
+        when {
+            // DocumentProvider
+            DocumentsContract.isDocumentUri(context, uri) -> {
+                when {
+                    // ExternalStorageProvider
+                    isExternalStorageDocument(uri) -> {
+                        val docId = DocumentsContract.getDocumentId(uri)
+                        val split = docId.split(":").toTypedArray()
+                        val type = split[0]
+                        // This is for checking Main Memory
+                        return if ("primary".equals(type, ignoreCase = true)) {
+                            if (split.size > 1) {
+                                Environment.getExternalStorageDirectory().toString() + "/" + split[1]
+                            } else {
+                                Environment.getExternalStorageDirectory().toString() + "/"
+                            }
+                            // This is for checking SD Card
+                        } else {
+                            "storage" + "/" + docId.replace(":", "/")
+                        }
+                    }
+                    isDownloadsDocument(uri) -> {
+                        val fileName = getFilePath(context, uri)
+                        if (fileName != null) {
+                            return Environment.getExternalStorageDirectory().toString() + "/Download/" + fileName
+                        }
+                        var id = DocumentsContract.getDocumentId(uri)
+                        if (id.startsWith("raw:")) {
+                            id = id.replaceFirst("raw:".toRegex(), "")
+                            val file = File(id)
+                            if (file.exists()) return id
+                        }
+                        val contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), java.lang.Long.valueOf(id))
+                        return getDataColumn(context, contentUri, null, null)
+                    }
+                    isMediaDocument(uri) -> {
+                        val docId = DocumentsContract.getDocumentId(uri)
+                        val split = docId.split(":").toTypedArray()
+                        val type = split[0]
+                        var contentUri: Uri? = null
+                        when (type) {
+                            "image" -> {
+                                contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                            }
+                            "video" -> {
+                                contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                            }
+                            "audio" -> {
+                                contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                            }
+                        }
+                        val selection = "_id=?"
+                        val selectionArgs = arrayOf(split[1])
+                        return getDataColumn(context, contentUri, selection, selectionArgs)
+                    }
+                }
+            }
+            "content".equals(uri.scheme, ignoreCase = true) -> {
+                // Return the remote address
+                return if (isGooglePhotosUri(uri)) uri.lastPathSegment else getDataColumn(context, uri, null, null)
+            }
+            "file".equals(uri.scheme, ignoreCase = true) -> {
+                return uri.path
+            }
+        }
+        return null
+    }
+
+    fun getDataColumn(context: Context, uri: Uri?, selection: String?,
+                      selectionArgs: Array<String>?): String? {
+        var cursor: Cursor? = null
+        val column = "_data"
+        val projection = arrayOf(
+            column
+        )
+        try {
+            if (uri == null) return null
+            cursor = context.contentResolver.query(uri, projection, selection, selectionArgs,
+                null)
+            if (cursor != null && cursor.moveToFirst()) {
+                val index = cursor.getColumnIndexOrThrow(column)
+                return cursor.getString(index)
+            }
+        } finally {
+            cursor?.close()
+        }
+        return null
+    }
+
+
+    fun getFilePath(context: Context, uri: Uri?): String? {
+        var cursor: Cursor? = null
+        val projection = arrayOf(
+            MediaStore.MediaColumns.DISPLAY_NAME
+        )
+        try {
+            if (uri == null) return null
+            cursor = context.contentResolver.query(uri, projection, null, null,
+                null)
+            if (cursor != null && cursor.moveToFirst()) {
+                val index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
+                return cursor.getString(index)
+            }
+        } finally {
+            cursor?.close()
+        }
+        return null
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is ExternalStorageProvider.
+     */
+    fun isExternalStorageDocument(uri: Uri): Boolean {
+        return "com.android.externalstorage.documents" == uri.authority
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is DownloadsProvider.
+     */
+    fun isDownloadsDocument(uri: Uri): Boolean {
+        return "com.android.providers.downloads.documents" == uri.authority
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is MediaProvider.
+     */
+    fun isMediaDocument(uri: Uri): Boolean {
+        return "com.android.providers.media.documents" == uri.authority
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is Google Photos.
+     */
+    fun isGooglePhotosUri(uri: Uri): Boolean {
+        return "com.google.android.apps.photos.content" == uri.authority
+    }
+
+/*    @Throws(IOException::class)
     fun saveBitmapToDisk(bitmap: Bitmap):String {
 
 //        val now = LocalDateTime.now()
@@ -245,7 +468,8 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
         // android/data/com.hswo.mvc_2021.hswo_mvc_2021_flutter_ar/files/
         // activity.applicationContext.getFilesDir().toString() //doesnt work!!
         // Environment.getExternalStorageDirectory()
-        val mPath: String =  context.getCacheDir().toString() + now + System.currentTimeMillis()  + ".jpg"
+        //context.getCacheDir().toString()
+        val mPath: String =  Environment.getExternalStorageDirectory().toString()+ "/DCIM/" + now + System.currentTimeMillis()  + ".jpg"
         //Toast.makeText(activity, "saving pic" +mPath, Toast.LENGTH_SHORT).show()
         val mediaFile = File(mPath)
         debugLog(mediaFile.toString())
@@ -259,7 +483,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
         imagePath = mPath
         //Toast.makeText(activity, "path" +imagePath, Toast.LENGTH_SHORT).show()
         return mPath as String
-    }
+    }*/
     
     fun toggleFlash(){
         if(hasFlash()){
