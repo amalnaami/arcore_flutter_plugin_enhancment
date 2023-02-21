@@ -44,7 +44,7 @@ import java.io.IOException;
  */
 public class VideoRecorder {
     private static final String TAG = "VideoRecorder";
-    private static final int DEFAULT_BITRATE = 10000000;
+    private static final int DEFAULT_BITRATE = 65535;
     private static final int DEFAULT_FRAMERATE = 30;
 
     // recordingVideoFlag is true when the media recorder is capturing video.
@@ -168,7 +168,7 @@ public class VideoRecorder {
 
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
 
         mediaRecorder.setOutputFile(videoPath.getAbsolutePath());
         mediaRecorder.setVideoEncodingBitRate(bitRate);
