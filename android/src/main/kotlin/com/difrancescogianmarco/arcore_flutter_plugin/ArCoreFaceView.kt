@@ -300,7 +300,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
                 ?: throw IOException("Failed to create new MediaStore record.")
 
             resolver.openOutputStream(uri)?.use {
-                if (!bitmap.compress(Bitmap.CompressFormat.PNG, 100, it))
+                if (!bitmap.compress(Bitmap.CompressFormat.PNG, 20, it))
                     throw IOException("Failed to save bitmap.")
             } ?: throw IOException("Failed to open output stream.")
             imagePath = getRealPathFromURI(context, uri)
