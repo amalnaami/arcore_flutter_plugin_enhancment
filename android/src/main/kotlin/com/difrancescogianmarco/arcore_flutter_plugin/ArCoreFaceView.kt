@@ -460,31 +460,31 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
         return "com.google.android.apps.photos.content" == uri.authority
     }
 
-  @Throws(IOException::class)
-    fun saveBitmapToDisk(bitmap: Bitmap):String {
-
-//        val now = LocalDateTime.now()
-//        now.format(DateTimeFormatter.ofPattern("M/d/y H:m:ss"))
-        val now = "pic"
-        // android/data/com.hswo.mvc_2021.hswo_mvc_2021_flutter_ar/files/
-        // activity.applicationContext.getFilesDir().toString() //doesnt work!!
-        // Environment.getExternalStorageDirectory()
-        //context.getCacheDir().toString()
-        val mPath: String =  Environment.getExternalStorageDirectory().toString()+ "/DCIM/" + now + System.currentTimeMillis()  + ".jpg"
-        //Toast.makeText(activity, "saving pic" +mPath, Toast.LENGTH_SHORT).show()
-        val mediaFile = File(mPath)
-        debugLog(mediaFile.toString())
-        //Log.i("path","fileoutputstream opened")
-        //Log.i("path",mPath)
-        val fileOutputStream = FileOutputStream(mediaFile)
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
-        fileOutputStream.flush()
-        fileOutputStream.close()
-//        Log.i("path","fileoutputstream closed")
-        imagePath = mPath
-        //Toast.makeText(activity, "path" +imagePath, Toast.LENGTH_SHORT).show()
-        return mPath as String
-    }
+//  @Throws(IOException::class)
+//    fun saveBitmapToDisk(bitmap: Bitmap):String {
+//
+////        val now = LocalDateTime.now()
+////        now.format(DateTimeFormatter.ofPattern("M/d/y H:m:ss"))
+//        val now = "pic"
+//        // android/data/com.hswo.mvc_2021.hswo_mvc_2021_flutter_ar/files/
+//        // activity.applicationContext.getFilesDir().toString() //doesnt work!!
+//        // Environment.getExternalStorageDirectory()
+//        //context.getCacheDir().toString()
+//        val mPath: String =  Environment.getExternalStorageDirectory().toString()+ "/DCIM/" + now + System.currentTimeMillis()  + ".jpg"
+//        //Toast.makeText(activity, "saving pic" +mPath, Toast.LENGTH_SHORT).show()
+//        val mediaFile = File(mPath)
+//        debugLog(mediaFile.toString())
+//        //Log.i("path","fileoutputstream opened")
+//        //Log.i("path",mPath)
+//        val fileOutputStream = FileOutputStream(mediaFile)
+//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
+//        fileOutputStream.flush()
+//        fileOutputStream.close()
+////        Log.i("path","fileoutputstream closed")
+//        imagePath = mPath
+//        //Toast.makeText(activity, "path" +imagePath, Toast.LENGTH_SHORT).show()
+//        return mPath as String
+//    }
 
     fun toggleFlash(){
         if(hasFlash()){
