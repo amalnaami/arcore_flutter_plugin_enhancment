@@ -226,7 +226,9 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
 
             // Create a bitmap the size of the scene view.
             //Toast.makeText(activity, "taking picture"+System.currentTimeMillis(), Toast.LENGTH_SHORT).show()
-            val bitmap: Bitmap = Bitmap.createBitmap(arSceneView!!.getWidth(), arSceneView!!.getHeight(),
+//            val bitmap: Bitmap = Bitmap.createBitmap(arSceneView!!.getWidth(), arSceneView!!.getHeight(),
+//                Bitmap.Config.ARGB_8888)
+            val bitmap: Bitmap = Bitmap.createBitmap(884, 1920,
                 Bitmap.Config.ARGB_8888)
 
             // Create a handler thread to offload the processing of the image.
