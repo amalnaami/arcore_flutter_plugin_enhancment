@@ -284,7 +284,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
         val values = ContentValues().apply {
             put(MediaStore.MediaColumns.TITLE, "AR picture" )
             put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            put(MediaStore.Images.Media.RELATIVE_PATH, imggpath.getAbsolutePath())
+            put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_DCIM)
         }
         //imagePath = imggpath.getAbsolutePath()
 
@@ -300,7 +300,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
                 ?: throw IOException("Failed to create new MediaStore record.")
 
             resolver.openOutputStream(uri)?.use {
-                if (!bitmap.compress(Bitmap.CompressFormat.PNG, 60, it))
+                if (!bitmap.compress(Bitmap.CompressFormat.PNG, 100, it))
                     throw IOException("Failed to save bitmap.")
             } ?: throw IOException("Failed to open output stream.")
             imagePath = getRealPathFromURI(context, uri)
