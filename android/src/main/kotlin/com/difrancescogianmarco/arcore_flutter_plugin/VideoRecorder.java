@@ -207,9 +207,9 @@ public class VideoRecorder {
             }
         }
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            setVideoSize(2348, 1080);
+            setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
         } else {
-            setVideoSize(1080, 2348);
+            setVideoSize(profile.videoFrameHeight, profile.videoFrameWidth);
         }
         setVideoCodec(profile.videoCodec);
         setBitRate(profile.videoBitRate);
