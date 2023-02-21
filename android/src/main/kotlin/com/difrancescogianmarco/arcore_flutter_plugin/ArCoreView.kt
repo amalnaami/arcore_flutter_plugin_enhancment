@@ -448,7 +448,7 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
             PixelCopy.request(arSceneView!!, bitmap, { copyResult ->
                 if (copyResult === PixelCopy.SUCCESS) {
                     try {
-                        saveBitmap(bitmap)
+                        saveBitmapToDisk(bitmap)
                     } catch (e: IOException) {
                         e.printStackTrace();
                     }
@@ -670,7 +670,7 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
     }
 
 
-    /*@Throws(IOException::class)
+   @Throws(IOException::class)
     fun saveBitmapToDisk(bitmap: Bitmap):String {
 
 //        val now = LocalDateTime.now()
@@ -693,7 +693,7 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
         imagePath = mPath
         return mPath as String
     }
-*/
+
     private fun arScenViewInit(call: MethodCall, result: MethodChannel.Result, context: Context) {
         debugLog("arScenViewInit")
         val enableTapRecognizer: Boolean? = call.argument("enableTapRecognizer")
