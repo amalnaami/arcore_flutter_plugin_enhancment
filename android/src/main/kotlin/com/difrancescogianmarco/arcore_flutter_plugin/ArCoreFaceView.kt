@@ -237,8 +237,8 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
             PixelCopy.request(arSceneView!!, bitmap, { copyResult ->
                 if (copyResult === PixelCopy.SUCCESS) {
                     try {
-                        saveBitmapToDisk(bitmap)
-//                        saveBitmap(bitmap)
+//                        saveBitmapToDisk(bitmap)
+                        saveBitmap(bitmap)
                     } catch (e: IOException) {
                         e.printStackTrace();
                     }
