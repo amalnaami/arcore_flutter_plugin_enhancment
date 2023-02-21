@@ -183,7 +183,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
             faceMeshTexture = null
         }
     }
-    
+
     fun record(){
 /*        if(newRecorder) {
             videoRecorder = VideoRecorder()
@@ -237,7 +237,8 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
             PixelCopy.request(arSceneView!!, bitmap, { copyResult ->
                 if (copyResult === PixelCopy.SUCCESS) {
                     try {
-                        saveBitmap(bitmap)
+                        saveBitmapToDisk(bitmap)
+//                        saveBitmap(bitmap)
                     } catch (e: IOException) {
                         e.printStackTrace();
                     }
@@ -273,7 +274,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
 
         val imggpath = File(
             imggdir,
-            "img" 
+            "img"
                     //+ System.currentTimeMillis() + ".jpeg"
         )
 
@@ -459,7 +460,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
         return "com.google.android.apps.photos.content" == uri.authority
     }
 
-/*    @Throws(IOException::class)
+  @Throws(IOException::class)
     fun saveBitmapToDisk(bitmap: Bitmap):String {
 
 //        val now = LocalDateTime.now()
@@ -483,8 +484,8 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
         imagePath = mPath
         //Toast.makeText(activity, "path" +imagePath, Toast.LENGTH_SHORT).show()
         return mPath as String
-    }*/
-    
+    }
+
     fun toggleFlash(){
         if(hasFlash()){
             if(flashEnabled){
@@ -494,7 +495,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
             }
         }
     }
-    
+
     fun enableFlash() {
         if (hasFlash()) {
             flashEnabled = true
@@ -502,7 +503,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
             setTorchMode(flashEnabled)
         }
     }
-    
+
     fun disableFlash() {
         if (hasFlash()) {
             flashEnabled = false
@@ -510,11 +511,11 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
             setTorchMode(flashEnabled)
         }
     }
-    
+
     private fun hasFlash(): Boolean {
         return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
     }
-    
+
     private fun getCameraManager(): CameraManager {
         return context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
@@ -533,7 +534,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
     }
 
 
-    
+
     fun arScenViewInit(call: MethodCall, result: MethodChannel.Result) {
         val enableAugmentedFaces: Boolean? = call.argument("enableAugmentedFaces")
         if (enableAugmentedFaces != null && enableAugmentedFaces) {
