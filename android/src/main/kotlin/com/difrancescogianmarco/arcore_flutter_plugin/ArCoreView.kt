@@ -32,7 +32,6 @@ import com.google.ar.sceneform.*
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.rendering.Texture
 import com.google.ar.sceneform.ux.AugmentedFaceNode
-import io.flutter.app.FlutterApplication
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -43,12 +42,9 @@ import android.net.Uri
 import android.os.Environment
 import android.view.PixelCopy
 import android.os.HandlerThread
-import android.content.ContextWrapper
 import java.io.FileOutputStream
 import java.io.File
 import java.io.IOException
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 class ArCoreView(val activity: Activity, val context: Context, messenger: BinaryMessenger, id: Int, private val isAugmentedFaces: Boolean, private val debug: Boolean) : PlatformView, MethodChannel.MethodCallHandler {
     private val methodChannel: MethodChannel = MethodChannel(messenger, "arcore_flutter_plugin_$id")
@@ -67,7 +63,8 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
     private var faceRegionsRenderable: ModelRenderable? = null
     private var faceMeshTexture: Texture? = null
     private val faceNodeMap = HashMap<AugmentedFace, AugmentedFaceNode>()
-    private var videoRecorder= VideoRecorder()
+    private var videoRecorder=
+        VideoRecording()
     private var flashEnabled = false
     private var imagePath : String? = " "
     private val imggdir =  File(context.getCacheDir().getAbsolutePath())

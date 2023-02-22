@@ -2,35 +2,12 @@ package com.difrancescogianmarco.arcore_flutter_plugin;
 
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.Manifest;
-import android.content.ContentValues;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.media.CamcorderProfile;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.provider.Settings;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import android.media.MediaRecorder;
-import android.os.Environment;
-import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import com.google.ar.sceneform.SceneView;
@@ -42,7 +19,7 @@ import java.io.IOException;
  * encode the video. The quality settings can be set explicitly or simply use the CamcorderProfile
  * class to select a predefined set of parameters.
  */
-public class VideoRecorder {
+public class VideoRecording {
     private static final String TAG = "VideoRecorder";
     private static final int DEFAULT_BITRATE = 65535;
     private static final int DEFAULT_FRAMERATE = 30;
@@ -72,7 +49,7 @@ public class VideoRecorder {
             CamcorderProfile.QUALITY_480P
     };
 
-    public VideoRecorder() {
+    public VideoRecording() {
         recordingVideoFlag = false;
     }
 

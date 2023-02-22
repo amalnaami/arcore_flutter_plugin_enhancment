@@ -17,18 +17,13 @@ import android.graphics.Bitmap
 import android.view.PixelCopy
 import android.os.Handler
 import android.os.HandlerThread
-import android.content.ContextWrapper
-import java.io.FileOutputStream
 import java.io.File
 import java.io.IOException
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import android.os.Environment
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.widget.Toast
-import com.difrancescogianmarco.arcore_flutter_plugin.VideoRecorder
 import com.difrancescogianmarco.arcore_flutter_plugin.utils.ArCoreUtils
 import com.google.ar.core.AugmentedFace
 import com.google.ar.core.Config
@@ -52,7 +47,8 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
     private var faceMeshTexture: Texture? = null
     private val faceNodeMap = HashMap<AugmentedFace, AugmentedFaceNode>()
     private var faceSceneUpdateListener: Scene.OnUpdateListener
-    private var videoRecorder = VideoRecorder()
+    private var videoRecorder =
+        VideoRecording()
     private var flashEnabled = false
     //private var path : File? = null
     private var imggdirectory : File? = null
@@ -226,10 +222,10 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
 
             // Create a bitmap the size of the scene view.
             //Toast.makeText(activity, "taking picture"+System.currentTimeMillis(), Toast.LENGTH_SHORT).show()
-//            val bitmap: Bitmap = Bitmap.createBitmap(arSceneView!!.getWidth(), arSceneView!!.getHeight(),
-//                Bitmap.Config.ARGB_8888)
-            val bitmap: Bitmap = Bitmap.createBitmap(884, 1920,
+            val bitmap: Bitmap = Bitmap.createBitmap(arSceneView!!.getWidth(), arSceneView!!.getHeight()+1,
                 Bitmap.Config.ARGB_8888)
+//            val bitmap: Bitmap = Bitmap.createBitmap(884, 1920,
+//                Bitmap.Config.ARGB_8888)
 
             // Create a handler thread to offload the processing of the image.
             val handlerThread = HandlerThread("PixelCopier")

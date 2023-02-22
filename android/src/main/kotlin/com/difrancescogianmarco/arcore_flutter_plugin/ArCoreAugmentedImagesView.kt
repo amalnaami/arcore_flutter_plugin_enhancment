@@ -54,7 +54,7 @@ class ArCoreAugmentedImagesView(
     // database.
     private val augmentedImageMap = HashMap<Int, Pair<AugmentedImage, AnchorNode>>()
     private var videoRecorder =
-        VideoRecorder()
+        VideoRecording()
     private var imagePath : String = " "
 
     private var job: Job = Job()
