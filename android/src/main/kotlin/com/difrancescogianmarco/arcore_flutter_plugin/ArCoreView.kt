@@ -32,6 +32,7 @@ import com.google.ar.sceneform.*
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.rendering.Texture
 import com.google.ar.sceneform.ux.AugmentedFaceNode
+import io.flutter.app.FlutterApplication
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -42,9 +43,12 @@ import android.net.Uri
 import android.os.Environment
 import android.view.PixelCopy
 import android.os.HandlerThread
+import android.content.ContextWrapper
 import java.io.FileOutputStream
 import java.io.File
 import java.io.IOException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class ArCoreView(val activity: Activity, val context: Context, messenger: BinaryMessenger, id: Int, private val isAugmentedFaces: Boolean, private val debug: Boolean) : PlatformView, MethodChannel.MethodCallHandler {
     private val methodChannel: MethodChannel = MethodChannel(messenger, "arcore_flutter_plugin_$id")
@@ -63,8 +67,7 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
     private var faceRegionsRenderable: ModelRenderable? = null
     private var faceMeshTexture: Texture? = null
     private val faceNodeMap = HashMap<AugmentedFace, AugmentedFaceNode>()
-    private var videoRecorder=
-        VideoRecording()
+    private var videoRecorder= VideoRecording()
     private var flashEnabled = false
     private var imagePath : String? = " "
     private val imggdir =  File(context.getCacheDir().getAbsolutePath())
@@ -75,27 +78,27 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
         methodChannel.setMethodCallHandler(this)
         arSceneView = ArSceneView(context)
         val orientation: Int = context.getResources().getConfiguration().orientation
-        videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_1080P, orientation)
+        videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_HIGH, orientation)
         videoRecorder!!.setSceneView(arSceneView)
         videoRecorder!!.setContext(context)
-/*        val w = arSceneView!!.getWidth()
-        val h = arSceneView!!.getHeight()
-        Toast.makeText(activity, "width: "+w, Toast.LENGTH_SHORT).show()
-        Toast.makeText(activity, "height: "+h, Toast.LENGTH_SHORT).show()*/
+        /*        val w = arSceneView!!.getWidth()
+                val h = arSceneView!!.getHeight()
+                Toast.makeText(activity, "width: "+w, Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, "height: "+h, Toast.LENGTH_SHORT).show()*/
 
         // Set up a tap gesture detector.
         gestureDetector = GestureDetector(
-                context,
-                object : GestureDetector.SimpleOnGestureListener() {
-                    override fun onSingleTapUp(e: MotionEvent): Boolean {
-                        onSingleTap(e)
-                        return true
-                    }
+            context,
+            object : GestureDetector.SimpleOnGestureListener() {
+                override fun onSingleTapUp(e: MotionEvent): Boolean {
+                    onSingleTap(e)
+                    return true
+                }
 
-                    override fun onDown(e: MotionEvent): Boolean {
-                        return true
-                    }
-                })
+                override fun onDown(e: MotionEvent): Boolean {
+                    return true
+                }
+            })
 
         sceneUpdateListener = Scene.OnUpdateListener { frameTime ->
 
@@ -183,9 +186,9 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
         // Load the face mesh texture.
         //                .setSource(activity, Uri.parse("fox_face_mesh_texture.png"))
         Texture.builder()
-                .setSource(BitmapFactory.decodeByteArray(textureBytes, 0, textureBytes!!.size))
-                .build()
-                .thenAccept { texture -> faceMeshTexture = texture }
+            .setSource(BitmapFactory.decodeByteArray(textureBytes, 0, textureBytes!!.size))
+            .build()
+            .thenAccept { texture -> faceMeshTexture = texture }
     }
 
 
@@ -276,24 +279,24 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
         }
     }
 
-/*    fun maybeEnableArButton() {
-        Log.i(TAG,"maybeEnableArButton" )
-        try{
-            val availability = ArCoreApk.getInstance().checkAvailability(activity.applicationContext)
-            if (availability.isTransient) {
-                // Re-query at 5Hz while compatibility is checked in the background.
-                Handler().postDelayed({ maybeEnableArButton() }, 200)
+    /*    fun maybeEnableArButton() {
+            Log.i(TAG,"maybeEnableArButton" )
+            try{
+                val availability = ArCoreApk.getInstance().checkAvailability(activity.applicationContext)
+                if (availability.isTransient) {
+                    // Re-query at 5Hz while compatibility is checked in the background.
+                    Handler().postDelayed({ maybeEnableArButton() }, 200)
+                }
+                if (availability.isSupported) {
+                    debugLog("AR SUPPORTED")
+                } else { // Unsupported or unknown.
+                    debugLog("AR NOT SUPPORTED")
+                }
+            }catch (ex:Exception){
+                Log.i(TAG,"maybeEnableArButton ${ex.localizedMessage}" )
             }
-            if (availability.isSupported) {
-                debugLog("AR SUPPORTED")
-            } else { // Unsupported or unknown.
-                debugLog("AR NOT SUPPORTED")
-            }
-        }catch (ex:Exception){
-            Log.i(TAG,"maybeEnableArButton ${ex.localizedMessage}" )
-        }
 
-    }*/
+        }*/
 
     private fun setupLifeCycle(context: Context) {
         activityLifecycleCallbacks = object : Application.ActivityLifecycleCallbacks {
@@ -434,8 +437,8 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
             // create bitmap screen capture
 
             // Create a bitmap the size of the scene view.
-            val bitmap: Bitmap = Bitmap.createBitmap(arSceneView!!.getWidth(), arSceneView!!.getHeight(),
-                    Bitmap.Config.ARGB_8888)
+            val bitmap: Bitmap = Bitmap.createBitmap(arSceneView!!.getWidth(), arSceneView!!.getHeight()+1,
+                Bitmap.Config.ARGB_8888)
 
             // Create a handler thread to offload the processing of the image.
             val handlerThread = HandlerThread("PixelCopier")
@@ -445,7 +448,7 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
             PixelCopy.request(arSceneView!!, bitmap, { copyResult ->
                 if (copyResult === PixelCopy.SUCCESS) {
                     try {
-                        saveBitmapToDisk(bitmap)
+                        saveBitmap(bitmap)
                     } catch (e: IOException) {
                         e.printStackTrace();
                     }
@@ -463,18 +466,18 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
     @Throws(IOException::class)
     fun saveBitmap(bitmap: Bitmap): Uri {
 
-/*        if (imggdirectory == null) {
+        /*        if (imggdirectory == null) {
 
-            imggdirectory =
-                File(context.getCacheDir() + "/Sceneform")
-        }
-        val path = File(imggdirectory, "pic" + System.currentTimeMillis() + ".jpg"
-        )
+                    imggdirectory =
+                        File(context.getCacheDir() + "/Sceneform")
+                }
+                val path = File(imggdirectory, "pic" + System.currentTimeMillis() + ".jpg"
+                )
 
-        val dir: File = path.getParentFile()
-        if (!dir.exists()) {
-            dir.mkdirs()
-        }*/
+                val dir: File = path.getParentFile()
+                if (!dir.exists()) {
+                    dir.mkdirs()
+                }*/
 
         if (!imggdir.exists()) {
             imggdir.mkdirs()
@@ -483,7 +486,7 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
         val imggpath = File(
             imggdir,
             "img"
-                    //+ System.currentTimeMillis() + ".jpeg"
+            //+ System.currentTimeMillis() + ".jpeg"
         )
 
         Toast.makeText(activity, "saving picture: " + imggpath.getAbsolutePath(), Toast.LENGTH_LONG).show()
@@ -667,7 +670,7 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
     }
 
 
-   @Throws(IOException::class)
+    /*@Throws(IOException::class)
     fun saveBitmapToDisk(bitmap: Bitmap):String {
 
 //        val now = LocalDateTime.now()
@@ -690,24 +693,24 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
         imagePath = mPath
         return mPath as String
     }
-
+*/
     private fun arScenViewInit(call: MethodCall, result: MethodChannel.Result, context: Context) {
         debugLog("arScenViewInit")
         val enableTapRecognizer: Boolean? = call.argument("enableTapRecognizer")
         if (enableTapRecognizer != null && enableTapRecognizer) {
             arSceneView
-                    ?.scene
-                    ?.setOnTouchListener { hitTestResult: HitTestResult, event: MotionEvent ->
+                ?.scene
+                ?.setOnTouchListener { hitTestResult: HitTestResult, event: MotionEvent ->
 
-                        if (hitTestResult.node != null) {
-                            debugLog(" onNodeTap " + hitTestResult.node?.name)
-                            debugLog(hitTestResult.node?.localPosition.toString())
-                            debugLog(hitTestResult.node?.worldPosition.toString())
-                            methodChannel.invokeMethod("onNodeTap", hitTestResult.node?.name)
-                            return@setOnTouchListener true
-                        }
-                        return@setOnTouchListener gestureDetector.onTouchEvent(event)
+                    if (hitTestResult.node != null) {
+                        debugLog(" onNodeTap " + hitTestResult.node?.name)
+                        debugLog(hitTestResult.node?.localPosition.toString())
+                        debugLog(hitTestResult.node?.worldPosition.toString())
+                        methodChannel.invokeMethod("onNodeTap", hitTestResult.node?.name)
+                        return@setOnTouchListener true
                     }
+                    return@setOnTouchListener gestureDetector.onTouchEvent(event)
+                }
         }
         val enableUpdateListener: Boolean? = call.argument("enableUpdateListener")
         if (enableUpdateListener != null && enableUpdateListener) {
@@ -761,14 +764,14 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
 
             debugLog("onAddNode inserted ${node?.name}")
 
-/*            if (flutterArCoreNode.parentNodeName != null) {
-                debugLog(flutterArCoreNode.parentNodeName);
-                val parentNode: Node? = arSceneView?.scene?.findByName(flutterArCoreNode.parentNodeName)
-                parentNode?.addChild(node)
-            } else {
-                debugLog("addNodeToSceneWithGeometry: NOT PARENT_NODE_NAME")
-                arSceneView?.scene?.addChild(node)
-            }*/
+            /*            if (flutterArCoreNode.parentNodeName != null) {
+                            debugLog(flutterArCoreNode.parentNodeName);
+                            val parentNode: Node? = arSceneView?.scene?.findByName(flutterArCoreNode.parentNodeName)
+                            parentNode?.addChild(node)
+                        } else {
+                            debugLog("addNodeToSceneWithGeometry: NOT PARENT_NODE_NAME")
+                            arSceneView?.scene?.addChild(node)
+                        }*/
             if (node != null) {
                 attachNodeToParent(node, flutterArCoreNode.parentNodeName)
                 for (n in flutterArCoreNode.children) {
@@ -849,9 +852,9 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
         if (!ArCoreUtils.hasCameraPermission(activity)) {
             ArCoreUtils.requestCameraPermission(activity, RC_PERMISSIONS)
         }
-        if (!ArCoreUtils.hasWritePermission(activity)) {
-            ArCoreUtils.requestWritePermission(activity)
-        }
+        /*        if (!ArCoreUtils.hasWritePermission(activity)) {
+                    ArCoreUtils.requestWritePermission(activity)
+                }*/
         if (!ArCoreUtils.hasAudioPermission(activity)) {
             ArCoreUtils.requestAudioPermission(activity)
         }
@@ -878,7 +881,7 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
             } catch (ex: UnavailableUserDeclinedInstallationException) {
                 // Display an appropriate message to the user zand return gracefully.
                 Toast.makeText(activity, "TODO: handle exception " + ex.localizedMessage, Toast.LENGTH_LONG)
-                        .show();
+                    .show();
                 return
             } catch (e: UnavailableException) {
                 ArCoreUtils.handleSessionException(activity, e)
@@ -907,7 +910,7 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
     }
 
     fun onDestroy() {
-      if (arSceneView != null) {
+        if (arSceneView != null) {
             debugLog("Goodbye ARCore! Destroying the Activity now 7.")
 
             try {
@@ -920,7 +923,7 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
 
             }catch (e : Exception){
                 e.printStackTrace();
-           }
+            }
         }
     }
 
