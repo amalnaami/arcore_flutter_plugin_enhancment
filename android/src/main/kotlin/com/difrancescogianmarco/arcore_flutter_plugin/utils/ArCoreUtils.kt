@@ -144,35 +144,35 @@ class ArCoreUtils {
                 activity, arrayOf(Manifest.permission.RECORD_AUDIO), 200)
         }
 
-        /*        var storageActivityResultLauncher: ActivityResultLauncher<Intent> =
-                    registerForActivityResult(
-                        StartActivityForResult(),
-                        object : ActivityResultCallback<ActivityResult?>() {
-                            fun onActivityResult(result: ActivityResult?) {
+/*        var storageActivityResultLauncher: ActivityResultLauncher<Intent> =
+            registerForActivityResult(
+                StartActivityForResult(),
+                object : ActivityResultCallback<ActivityResult?>() {
+                    fun onActivityResult(result: ActivityResult?) {
+                        Log.d(
+                            com.difrancescogianmarco.arcore_flutter_plugin.VideoRecorder.TAG,
+                            "onActivityResult: "
+                        )
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            // Android is 11 or above
+                            if (Environment.isExternalStorageManager()) {
+                                //Manage External Storage Permission is granted
                                 Log.d(
                                     com.difrancescogianmarco.arcore_flutter_plugin.VideoRecorder.TAG,
-                                    "onActivityResult: "
+                                    "onActivityResult: Manage External Storage Permission is granted"
                                 )
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                                    // Android is 11 or above
-                                    if (Environment.isExternalStorageManager()) {
-                                        //Manage External Storage Permission is granted
-                                        Log.d(
-                                            com.difrancescogianmarco.arcore_flutter_plugin.VideoRecorder.TAG,
-                                            "onActivityResult: Manage External Storage Permission is granted"
-                                        )
-                                    } else {
-                                        //Manage External Storage Permission is denied
-                                        Log.d(
-                                            com.difrancescogianmarco.arcore_flutter_plugin.VideoRecorder.TAG,
-                                            "onActivityResult: Manage External Storage Permission is denied "
-                                        )
-                                        //Toast.makeText(this, "Manage External Storage permission is denied", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
+                            } else {
+                                //Manage External Storage Permission is denied
+                                Log.d(
+                                    com.difrancescogianmarco.arcore_flutter_plugin.VideoRecorder.TAG,
+                                    "onActivityResult: Manage External Storage Permission is denied "
+                                )
+                                //Toast.makeText(this, "Manage External Storage permission is denied", Toast.LENGTH_SHORT).show();
                             }
                         }
-                    )*/
+                    }
+                }
+            )*/
 
         /** Check to see we have the necessary permissions for this app.  */
         fun hasCameraPermission(activity: Activity): Boolean {

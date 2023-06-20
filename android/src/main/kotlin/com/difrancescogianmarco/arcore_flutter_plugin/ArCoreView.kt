@@ -32,7 +32,6 @@ import com.google.ar.sceneform.*
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.rendering.Texture
 import com.google.ar.sceneform.ux.AugmentedFaceNode
-import io.flutter.app.FlutterApplication
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -43,12 +42,9 @@ import android.net.Uri
 import android.os.Environment
 import android.view.PixelCopy
 import android.os.HandlerThread
-import android.content.ContextWrapper
 import java.io.FileOutputStream
 import java.io.File
 import java.io.IOException
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 class ArCoreView(val activity: Activity, val context: Context, messenger: BinaryMessenger, id: Int, private val isAugmentedFaces: Boolean, private val debug: Boolean) : PlatformView, MethodChannel.MethodCallHandler {
     private val methodChannel: MethodChannel = MethodChannel(messenger, "arcore_flutter_plugin_$id")
@@ -67,7 +63,8 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
     private var faceRegionsRenderable: ModelRenderable? = null
     private var faceMeshTexture: Texture? = null
     private val faceNodeMap = HashMap<AugmentedFace, AugmentedFaceNode>()
-    private var videoRecorder= VideoRecording()
+    private var videoRecorder=
+        VideoRecording()
     private var flashEnabled = false
     private var imagePath : String? = " "
     private val imggdir =  File(context.getCacheDir().getAbsolutePath())
@@ -437,7 +434,7 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
             // create bitmap screen capture
 
             // Create a bitmap the size of the scene view.
-            val bitmap: Bitmap = Bitmap.createBitmap(arSceneView!!.getWidth(), arSceneView!!.getHeight()+1,
+            val bitmap: Bitmap = Bitmap.createBitmap(arSceneView!!.getWidth(), arSceneView!!.getHeight(),
                 Bitmap.Config.ARGB_8888)
 
             // Create a handler thread to offload the processing of the image.
@@ -448,7 +445,7 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
             PixelCopy.request(arSceneView!!, bitmap, { copyResult ->
                 if (copyResult === PixelCopy.SUCCESS) {
                     try {
-                        saveBitmap(bitmap)
+                        saveBitmapToDisk(bitmap)
                     } catch (e: IOException) {
                         e.printStackTrace();
                     }
@@ -670,7 +667,7 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
     }
 
 
-    /*@Throws(IOException::class)
+    @Throws(IOException::class)
     fun saveBitmapToDisk(bitmap: Bitmap):String {
 
 //        val now = LocalDateTime.now()
@@ -693,7 +690,7 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
         imagePath = mPath
         return mPath as String
     }
-*/
+
     private fun arScenViewInit(call: MethodCall, result: MethodChannel.Result, context: Context) {
         debugLog("arScenViewInit")
         val enableTapRecognizer: Boolean? = call.argument("enableTapRecognizer")
@@ -852,9 +849,9 @@ class ArCoreView(val activity: Activity, val context: Context, messenger: Binary
         if (!ArCoreUtils.hasCameraPermission(activity)) {
             ArCoreUtils.requestCameraPermission(activity, RC_PERMISSIONS)
         }
-        /*        if (!ArCoreUtils.hasWritePermission(activity)) {
-                    ArCoreUtils.requestWritePermission(activity)
-                }*/
+        if (!ArCoreUtils.hasWritePermission(activity)) {
+            ArCoreUtils.requestWritePermission(activity)
+        }
         if (!ArCoreUtils.hasAudioPermission(activity)) {
             ArCoreUtils.requestAudioPermission(activity)
         }

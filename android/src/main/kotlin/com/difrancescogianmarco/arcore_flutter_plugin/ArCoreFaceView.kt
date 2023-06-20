@@ -1,9 +1,9 @@
 package com.difrancescogianmarco.arcore_flutter_plugin
 
-import android.app.Activity
-import java.nio.ByteBuffer
 
-import androidx.core.content.FileProvider
+
+import android.app.Activity
+
 import android.content.ContentUris
 import android.provider.DocumentsContract
 import android.database.Cursor
@@ -61,7 +61,8 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
     private var faceMeshTexture: Texture? = null
     private val faceNodeMap = HashMap<AugmentedFace, AugmentedFaceNode>()
     private var faceSceneUpdateListener: Scene.OnUpdateListener
-    private var videoRecorder = VideoRecording()
+    private var videoRecorder =
+        VideoRecording()
     private var flashEnabled = false
     //private var path : File? = null
     private var imggdirectory : File? = null
@@ -78,7 +79,8 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
         val orientation: Int = context.getResources().getConfiguration().orientation
         videoRecorder!!.setSceneView(arSceneView)
         videoRecorder!!.setContext(context)
-        videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_HIGH, orientation)
+
+        videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_1080P, orientation)
         //videoRecorder!!.setVideoSize(arSceneView!!.getWidth(), arSceneView!!.getHeight())
 
         faceSceneUpdateListener = Scene.OnUpdateListener { frameTime ->
@@ -95,13 +97,10 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
                     for (face in faceList) {
                         if (!faceNodeMap.containsKey(face)) {
                             val faceNode = AugmentedFaceNode(face)
-                            //parentNode.setParent(arSceneView?.scene)
                             faceNode.setParent(arSceneView?.scene)
-                            skeletonNode.setParent(faceNode)
                             faceNode.faceRegionsRenderable = faceRegionsRenderable
                             faceNode.faceMeshTexture = faceMeshTexture
                             faceNodeMap[face] = faceNode
-
 
                             // change assets on runtime
                         } else if(faceNodeMap[face]?.faceRegionsRenderable != faceRegionsRenderable  ||  faceNodeMap[face]?.faceMeshTexture != faceMeshTexture ){
@@ -172,7 +171,6 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
     }
 
     fun loadMesh(textureBytes: ByteArray?, skin3DModelFilename: String?) {
-
         if (skin3DModelFilename != null) {
             // Load the face regions renderable.
             // This is a skinned model that renders 3D objects mapped to the regions of the augmented face.
@@ -180,20 +178,13 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
                 .setSource(activity, Uri.parse(skin3DModelFilename))
                 .build()
                 .thenAccept { modelRenderable ->
-                    //AnchorNode anchorNode = new AnchorNode();
                     faceRegionsRenderable = modelRenderable
-                    //skeletonNode.renderable = modelRenderable
                     modelRenderable.isShadowCaster = false
                     modelRenderable.isShadowReceiver = false
                 }
         }
         else{
             faceRegionsRenderable = null
-        }
-
-        if(faceRegionsRenderable != null && faceRegionsRenderable?.getAnimationDataCount() != 0)
-        {
-            animateModel(faceRegionsRenderable)
         }
 
         // Load the face mesh texture.
@@ -209,33 +200,17 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
         }
     }
 
-    fun animateModel(modelRenderable: ModelRenderable?){
-
-        /*        if(modelAnimator != null && modelAnimator!!.isRunning())
-                    modelAnimator!!.end()*/
-        var animationCount = modelRenderable?.getAnimationDataCount()
-        if(i == animationCount)
-            i = 0
-        var animationData = modelRenderable?.getAnimationData(i)
-
-        modelAnimator = ModelAnimator(animationData, modelRenderable)
-        modelAnimator!!.start()
-        modelAnimator!!.setRepeatCount(-1)
-        i++
-
-    }
-
     fun record(){
-        /*        if(newRecorder) {
-                    videoRecorder = VideoRecorder()
+/*        if(newRecorder) {
+            videoRecorder = VideoRecorder()
 
-                    val orientation: Int = context.getResources().getConfiguration().orientation
-                    videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_2160P, orientation)
-                    videoRecorder!!.setSceneView(arSceneView)
-                    videoRecorder!!.setContext(context)
-                    newRecorder = false
+            val orientation: Int = context.getResources().getConfiguration().orientation
+            videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_2160P, orientation)
+            videoRecorder!!.setSceneView(arSceneView)
+            videoRecorder!!.setContext(context)
+            newRecorder = false
 
-                }*/
+        }*/
         //this.sceneView.getWidth()
         //this.sceneView.getHeight()
 
