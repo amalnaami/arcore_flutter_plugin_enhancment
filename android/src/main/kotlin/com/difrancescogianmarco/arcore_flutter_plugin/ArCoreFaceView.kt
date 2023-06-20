@@ -80,7 +80,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
         videoRecorder!!.setSceneView(arSceneView)
         videoRecorder!!.setContext(context)
 
-        videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_1080P, orientation)
+        videoRecorder!!.setVideoQuality(CamcorderProfile.QUALITY_HIGH, orientation)
         //videoRecorder!!.setVideoSize(arSceneView!!.getWidth(), arSceneView!!.getHeight())
 
         faceSceneUpdateListener = Scene.OnUpdateListener { frameTime ->
