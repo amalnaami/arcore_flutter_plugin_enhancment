@@ -53,7 +53,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
     private var faceMeshTexture: Texture? = null
     private val faceNodeMap = HashMap<AugmentedFace, AugmentedFaceNode>()
     private var faceSceneUpdateListener: Scene.OnUpdateListener
-    private var videoRecorder = VideoRecorder()
+    private var videoRecorder = VideoRecording()
     private var flashEnabled = false
     //private var path : File? = null
     private var imggdirectory : File? = null
