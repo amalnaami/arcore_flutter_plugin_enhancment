@@ -1,5 +1,3 @@
-package android
-
 group 'com.difrancescogianmarco.arcore_flutter_plugin'
 version '1.0-SNAPSHOT'
 
