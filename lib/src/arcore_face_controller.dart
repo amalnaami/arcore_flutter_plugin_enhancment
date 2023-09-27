@@ -5,6 +5,19 @@ import 'package:flutter/services.dart';
 import '../arcore_flutter_plugin.dart';
 
 class ArCoreFaceController {
+
+/*  static checkArCoreAvailability() async {
+    final bool arcoreAvailable = await MethodChannel(UTILS_CHANNEL_NAME)
+        .invokeMethod('checkArCoreApkAvailability');
+    return arcoreAvailable;
+  }
+
+  static checkIsArCoreInstalled() async {
+    final bool arcoreInstalled = await MethodChannel(UTILS_CHANNEL_NAME)
+        .invokeMethod('checkIfARCoreServicesInstalled');
+    return arcoreInstalled;
+  }*/
+  
   ArCoreFaceController(
       {int? id, this.enableAugmentedFaces, this.debug = false}) {
     _channel = MethodChannel('arcore_flutter_plugin_$id');
@@ -70,24 +83,50 @@ class ArCoreFaceController {
   }
 
   Future<String> getVideoPath() async {
-    final String path = await _channel.invokeMethod('getVideoPath');
+    final String videoPath = await _channel.invokeMethod('getVideoPath');
     //print("path is: $path");
-    return path;
+    return videoPath;
   }
 
-
-
-  void dispose() {
-    _channel.invokeMethod<void>('dispose');
-  }
-
-  Future<void> takePictureFront(){
-    return _channel.invokeMethod('takePicture');
-  }
   Future<String?> getImagePath() async {
     final String? imgPath = await _channel.invokeMethod('getImagePath');
     //print("path is: $path");
     print("path is: $imgPath");
     return imgPath;
+  }
+
+  Future<void> toggleFlashlight(){
+    return _channel.invokeMethod('toggleFlashlight');
+  }
+
+  Future<void> takePictureFront(){
+    return _channel.invokeMethod('takePicture');
+  }
+  
+
+  Future<bool?> checkArCoreApkAvailability() async {
+    final bool arcoreAvailable = await MethodChannel(UTILS_CHANNEL_NAME)
+        .invokeMethod('checkArCoreApkAvailability');
+    return arcoreAvailable;
+  }
+  
+  Future<bool?> checkIfARCoreServicesInstalled() async {
+    final bool arcoreInstalled = await MethodChannel(UTILS_CHANNEL_NAME)
+        .invokeMethod('checkIfARCoreServicesInstalled');
+    return arcoreInstalled;
+  }
+
+  Future<String?> getErrorMessage() async{
+    final String? errorMessage = await _channel.invokeMethod('getErrorMessage');
+    return errorMessage;
+  }
+  
+
+
+
+
+
+  void dispose() {
+    _channel.invokeMethod<void>('dispose');
   }
 }
