@@ -392,7 +392,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
         //modelAnimator!!.setRepeatCount(-1)
         i++
     }
-
+    
     fun record(){
         val recording = videoRecorder!!.onToggleRecord()
         if (!recording) {
@@ -469,7 +469,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
     }
 
 
-
+    
     fun toggleFlash(){
         if(hasFlash()){
             if(flashEnabled){
@@ -479,7 +479,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
             }
         }
     }
-
+    
     fun enableFlash() {
         if (hasFlash()) {
             flashEnabled = true
@@ -487,7 +487,7 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
             setTorchMode(flashEnabled)
         }
     }
-
+    
     fun disableFlash() {
         if (hasFlash()) {
             flashEnabled = false
@@ -495,11 +495,11 @@ class ArCoreFaceView(activity:Activity,context: Context, messenger: BinaryMessen
             setTorchMode(flashEnabled)
         }
     }
-
+    
     private fun hasFlash(): Boolean {
         return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
     }
-
+    
     private fun getCameraManager(): CameraManager {
         return context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
